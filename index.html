@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>FredOS Body V5.2 Adaptive Fusion</title>
+<title>FredOS Body V5.3 Adaptive Fusion</title>
 <meta name="theme-color" content="#0E1216"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -417,7 +417,7 @@ if(__realSessions.length!==st.sessions.length){
  }
  localStorage.setItem(KEY,JSON.stringify(st));
 }
-let tab='now',openId=null,historyOpenId=null,browseKey=null,draft=[],toast='',timer={running:false,end:0,remaining:st.restPreset||120},tick=null,editExerciseId=null,setEditor=null;
+let tab='home',openId=null,historyOpenId=null,browseKey=null,draft=[],toast='',timer={running:false,end:0,remaining:st.restPreset||120},tick=null,editExerciseId=null,setEditor=null;
 
 
 const SOUND_KEY='fredos_body_sound_v1';
@@ -544,10 +544,10 @@ function render(){
  const activePct=st.active&&activeTotal?Math.min(100,Math.round(activeSets/activeTotal*100)):0;
  app.innerHTML=`
  <div class="shell">
-  <div class="head"><div><div class="eyebrow">FredOS · Body V5.2 ADAPTIVE · Fusion</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
+  <div class="head"><div><div class="eyebrow">FredOS · Body V5.3 ADAPTIVE · Fusion</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
   <div class="cons"><div class="bars">${[0,1,2,3].map(i=>`<i class="bar ${i<Math.min(recent,4)?'on':''}"></i>`).join('')}</div><div class="consTxt">${st.active?`Lift #${lifts.length+1} · Session ${st.active.key} live · ${activeSets}/${activeTotal} sets · ${activePct}%`:`${lifts.length} completed lift${lifts.length===1?'':'s'} · next up ${queueKey}`}</div><div class="consProgress"><i style="width:${st.active?activePct:Math.min(100,recent*25)}%"></i></div></div>
-  <div class="tabs">${[['now','Next up'],['cardio','Cardio'],['body','Muscle IQ'],['history','History'],['analytics','Trends'],['cycle','Rotation'],['program','Program'],['fusion','Readiness'],['rules','Rules']].map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="goTab('${k}')">${l}</button>`).join('')}</div>
-  ${tab==='now'?renderNow(sess,key,queueKey):tab==='cardio'?renderCardio():tab==='body'?renderBody(PROGRAM[queueKey]):tab==='history'?renderHistory():tab==='analytics'?renderAnalytics():tab==='cycle'?renderRotation():tab==='program'?renderProgram():tab==='fusion'?renderFusion():renderRules()}
+  <div class="tabs">${[['home','Home'],['now','Next up'],['cardio','Cardio'],['body','Muscle IQ'],['history','History'],['analytics','Trends'],['cycle','Rotation'],['program','Program'],['fusion','Readiness'],['rules','Rules']].map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="goTab('${k}')">${l}</button>`).join('')}</div>
+  ${tab==='home'?renderHomeDashboard():tab==='now'?renderNow(sess,key,queueKey):tab==='cardio'?renderCardio():tab==='body'?renderBody(PROGRAM[queueKey]):tab==='history'?renderHistory():tab==='analytics'?renderAnalytics():tab==='cycle'?renderRotation():tab==='program'?renderProgram():tab==='fusion'?renderFusion():renderRules()}
   ${openId?renderSheet(openId):''}
   ${historyOpenId?renderHistorySessionSheet(historyOpenId):''}
   ${editExerciseId?renderExerciseEditor(editExerciseId):''}
@@ -595,7 +595,7 @@ function renderExerciseRow(ex,block){
  const prev=lastExerciseRecord(ex.id),cur=currentExercise(ex.id),ref=cur?.sets?.length?cur:prev;
  const targetSets=tierSets(ex,block,tierKey()),p=progression({...ex,sets:targetSets},ref),done=cur?.sets?.length>=targetSets,hasPR=cur?.sets?.some(x=>x.pr),muscle=primaryMuscle(ex.id);
  const prevTxt=prev?.sets?.map(s=>`${s.w}×${s.r}${s.pr?'★':''}`).join(' · ')||'no history';
- return `<div class="exManage"><button class="exTap" onclick="openExercise('${ex.id}',${targetSets})"><div><div class="exName">${ex.name}${done?' <span style="color:var(--done)">●</span>':''} ${hasPR?'<span class="prBadge">★ PR</span>':''}</div><div class="exSub"><span style="color:var(--dimmer)">prev</span><span class="${IMPORTED[ex.id]&&!st.sessions.some(s=>s.exercises?.[ex.id])?'imported':''}">${prevTxt}</span>${prev?.label?`<span class="chip">${prev.label}</span>`:''}${muscle?`<span class="muscleMiniLabel">${muscle}</span>`:''}</div></div><div class="target"><div class="targetMain">${targetSets} × ${ex.lo===ex.hi?ex.lo:`${ex.lo}–${ex.hi}`}</div><span class="pill ${p.startsWith('ADD')?'hot':done?'done':''}">${p}</span></div></button><button class="exGear" onclick="openExerciseEditor('${ex.id}')" aria-label="Edit ${ex.name}">•••</button></div>`
+ return `<div class="exManage"><button class="exTap" data-open-ex="${ex.id}" data-target-sets="${targetSets}" onclick="openExercise('${ex.id}',${targetSets})"><div><div class="exName">${ex.name}${done?' <span style="color:var(--done)">●</span>':''} ${hasPR?'<span class="prBadge">★ PR</span>':''}</div><div class="exSub"><span style="color:var(--dimmer)">prev</span><span class="${IMPORTED[ex.id]&&!st.sessions.some(s=>s.exercises?.[ex.id])?'imported':''}">${prevTxt}</span>${prev?.label?`<span class="chip">${prev.label}</span>`:''}${muscle?`<span class="muscleMiniLabel">${muscle}</span>`:''}</div></div><div class="target"><div class="targetMain">${targetSets} × ${ex.lo===ex.hi?ex.lo:`${ex.lo}–${ex.hi}`}</div><span class="pill ${p.startsWith('ADD')?'hot':done?'done':''}">${p}</span></div></button><button class="exGear" onclick="openExerciseEditor('${ex.id}')" aria-label="Edit ${ex.name}">•••</button></div>`
 }
 function renderSheet(id){
  const ex=exById(id),prev=lastExerciseRecord(id),cur=currentExercise(id);
@@ -615,13 +615,14 @@ function renderSheet(id){
     <div class="setFooter"><span></span><div class="setStamp">${d.ts?`<span>saved ${fmtTime(d.ts)}</span>`:''}${d.actualRest!=null?`<span>actual rest ${secFmt(d.actualRest)}</span>`:''}</div></div>
   </div>`).join('')}
   <div class="setActions"><button class="secondary" onclick="saveNextSet()">Save next completed set</button><button class="small" onclick="clearDraft()">Reset unsaved</button></div>
+  ${renderNextSetCoach(id)}
   ${renderTimer()}
   <div class="meta" style="margin-top:12px">Progression uses weight + reps + RIR. Hitting the top of the rep range at 0 RIR will not automatically tell you to add load.</div>
  </div></div>`;
 }
 function renderTimer(){
- const preset=st.restPreset||120,pct=Math.max(0,Math.min(100,(timer.remaining/preset)*100));
- return `<div class="timerBox"><div class="timerHero"><div class="timerRing ${timer.running?'running':''}" id="timerRing" style="--pct:${pct}"><div class="timerRingInner"><div class="timerNum" id="timerNum">${secFmt(timer.remaining)}</div><div class="timerState" id="timerState">${timer.running?'RESTING':'READY'}</div></div></div><div class="timerSide"><div class="timerLabel">Live rest timer</div><div class="timerSelected">${secFmt(preset)}</div><div class="timerSelectedSub">selected rest target · actual elapsed rest is still recorded from saved-set timestamps</div><div class="presets">${[120,90,60,30,15].map(s=>`<button class="preset ${preset===s?'on':''}" onclick="setRestPreset(${s})">${secFmt(s)}</button>`).join('')}</div></div></div><div class="timerBtns"><button class="small" onclick="toggleTimer()">${timer.running?'Pause':'Start'}</button><button class="small" onclick="plus15()">+15 sec</button><button class="small" onclick="skipTimer()">Skip</button></div></div>`
+ const rec=openId?nextSetRecommendation(openId):null,preset=rec?.rest||st.restPreset||120,pct=Math.max(0,Math.min(100,(timer.remaining/preset)*100));
+ return `<div class="timerBox"><div class="timerHero"><div class="timerRing ${timer.running?'running':''}" id="timerRing" style="--pct:${pct}"><div class="timerRingInner"><div class="timerNum ${timer.running&&timer.remaining<=10?'timerCountdownWarn':''}" id="timerNum">${secFmt(timer.remaining)}</div><div class="timerState" id="timerState">${timer.running?'RESTING':'READY'}</div></div></div><div class="timerSide"><div class="timerLabel">Adaptive rest timer</div><div class="timerSelected">${secFmt(preset)}</div><div class="timerSelectedSub">${rec?'FredOS recommended for your next set':'selected rest target'} · saving a set ${st.v5?.autoRest!==false?'auto-starts':'does not auto-start'} this timer.</div><div class="presets">${[180,150,120,90,75,60].map(s=>`<button class="preset ${preset===s?'on':''}" onclick="setRestPreset(${s})">${secFmt(s)}</button>`).join('')}</div></div></div><div class="timerBtns"><button class="small" onclick="toggleTimer()">${timer.running?'Pause':'Start'}</button><button class="small" onclick="plus15()">+15 sec</button><button class="small" onclick="skipTimer()">Skip</button></div></div>`
 }
 function makeDraft(ex,cur,prev){
  const seed=cur?.sets?.at(-1)?.w??prev?.sets?.at(-1)?.w??String(ex.load).replace(/[^\d.]/g,'');
@@ -649,27 +650,25 @@ function saveNextSet(){
  st.active.exercises[openId].sets.push(row);recalculatePRFlags();const savedRow=st.active.exercises[openId].sets.at(-1);save();sfx(savedRow.pr?'complete':'set');setCompleteFX(!!savedRow.pr);
  draft[savedCount]={...savedRow};
  if(savedCount+1<ex.sets){draft[savedCount+1].w=d.w}
- startTimer(st.restPreset||120);
- showToast(`${savedRow.pr?'★ PR · ':''}Set ${savedCount+1} saved · ${fmtTime(now)}`);
+ const nextRec=nextSetRecommendation(openId);
+ st.v5.restOverrides=st.v5.restOverrides||{};st.v5.restOverrides[openId]=nextRec.rest;save();
+ if(st.v5.autoRest!==false)startTimer(nextRec.rest);else{timer.running=false;timer.remaining=nextRec.rest;timer.end=0;render()}
+ showToast(`${savedRow.pr?'★ PR · ':''}Set ${savedCount+1} saved · next: ${nextRec.action} · rest ${secFmt(nextRec.rest)}`);
 }
-function setRestPreset(s){st.restPreset=s;save();timer.remaining=s;if(!timer.running)timer.end=0;render()}
-function startTimer(s){timer.running=true;timer.remaining=s;timer.end=Date.now()+s*1000;clearInterval(tick);tick=setInterval(()=>{timer.remaining=Math.max(0,Math.ceil((timer.end-Date.now())/1000));updateTimerUI();if(timer.remaining<=0){clearInterval(tick);timer.running=false;sfx('rest');showToast('Rest complete — next set')}} ,250);render()}
-function updateTimerUI(){const e=document.getElementById('timerNum');if(e)e.textContent=secFmt(timer.remaining);const ring=document.getElementById('timerRing'),state=document.getElementById('timerState'),preset=st.restPreset||120;if(ring)ring.style.setProperty('--pct',Math.max(0,Math.min(100,timer.remaining/preset*100)));if(state)state.textContent=timer.running?'RESTING':'READY'}
-function toggleTimer(){if(timer.running){timer.remaining=Math.max(0,Math.ceil((timer.end-Date.now())/1000));timer.running=false;clearInterval(tick);render()}else startTimer(timer.remaining||st.restPreset||120)}
-function plus15(){if(timer.running){timer.end+=15000}else timer.remaining+=15;updateTimerUI()}
-function skipTimer(){timer.running=false;timer.remaining=0;clearInterval(tick);render()}
-function setMode(m){if(st.active){showToast('Close the live session before changing equipment mode');return}st.mode=m;save();render()}
-function setLen(l){if(st.active){showToast('Close the live session before changing session length');return}st.len=l;save();render()}
-function setTier(t){if(!TIERS[t])return;if(st.active){showToast('Finish or close the live session before changing tier');return}st.tier=t;st.len=(t==='max'||t==='fast')?'full':'core';save();sfx('tap');render()}
-function closeSession(){
- if(!st.active){browseKey=null;ensureActive();sfx('start');showToast(`Session ${st.active.key} started · ${fmtTime(st.active.start)}`);render();return}
- const n=sessionSetCount(st.active),key=st.active.key;
- if(n===0){
-  st.active=null;save();sfx('error');showToast(`Empty ${key} session discarded · queue stays on ${key}`);openId=null;draft=[];render();return
- }
- if(st.active.pausedAt){st.active.pausedMs=Number(st.active.pausedMs||0)+Math.max(0,Date.now()-new Date(st.active.pausedAt).getTime());st.active.pausedAt=null;}st.active.end=new Date().toISOString();st.active.workoutSeconds=workoutElapsedSeconds(st.active);st.sessions.push(st.active);st.active=null;
- const i=ORDER.indexOf(key);st.qi=i>=0?(i+1)%ORDER.length:st.qi;
- browseKey=null;save();sfx('complete');celebrate();showToast(`Lift #${completedSessions().length} closed · next up ${ORDER[st.qi]}`);openId=null;draft=[];render()
+function setRestPreset(s){st.restPreset=s;if(openId){st.v5.restOverrides=st.v5.restOverrides||{};st.v5.restOverrides[openId]=s}save();timer.remaining=s;if(!timer.running)timer.end=0;render()}
+function startTimer(s){
+ timer.running=true;timer.remaining=s;timer.end=Date.now()+s*1000;timer.lastBeep=null;
+ clearInterval(tick);tick=setInterval(()=>{
+   const prev=timer.remaining;timer.remaining=Math.max(0,Math.ceil((timer.end-Date.now())/1000));
+   if(st.v5?.countdownBeep!==false && timer.remaining<=10 && timer.remaining>0 && timer.remaining!==timer.lastBeep){timer.lastBeep=timer.remaining;tone(timer.remaining<=3?900:680,.045,.035,'sine');if(timer.remaining<=3)haptic(10)}
+   updateTimerUI();
+   if(timer.remaining<=0){clearInterval(tick);timer.running=false;sfx('rest');showToast('Rest complete — next set ready')}
+ },200);render()
+}
+function updateTimerUI(){
+ const e=document.getElementById('timerNum');if(e){e.textContent=secFmt(timer.remaining);e.classList.toggle('timerCountdownWarn',timer.running&&timer.remaining<=10)}
+ const ring=document.getElementById('timerRing'),state=document.getElementById('timerState'),preset=openId?recommendedRestSeconds(openId):(st.restPreset||120);
+ if(ring)ring.style.setProperty('--pct',Math.max(0,Math.min(100,timer.remaining/preset*100)));if(state)state.textContent=timer.running?(timer.remaining<=10?'GET READY':'RESTING'):'READY'
 }
 function browseWorkout(delta){
  const queueKey=st.active?.key||ORDER[st.qi],cur=browseKey||queueKey,i=ORDER.indexOf(cur);
@@ -858,11 +857,31 @@ window.FREDOS_VERSION="5.1 Adaptive";
 .restRec{margin-top:10px;background:#101820;border:1px solid #2b3b4a;border-radius:8px;padding:10px}.restRec strong{color:var(--signal)}.restReason{font-size:10px;color:var(--dim);line-height:1.45;margin-top:4px}.timerRecommended{font-family:monospace;font-size:11px;color:#8fb6ff;margin-bottom:7px}.reconciled{color:#e8a33d;font-size:8px;border:1px solid #6a4f24;border-radius:3px;padding:1px 4px;margin-left:4px}
 .rotationDay{display:grid;grid-template-columns:52px 1fr auto;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--lineSoft)}.rotationDay .date{font-family:monospace;font-size:9px;color:var(--dim)}.rotationDay .plan{font-size:11px}.rotationDay .plan small{display:block;color:var(--dimmer);margin-top:2px}.rotationDay .status{font-family:monospace;font-size:9px;padding:3px 6px;border-radius:999px;border:1px solid var(--line)}
 @media(max-width:430px){.bankGrid{grid-template-columns:1fr}.hevyGrid{grid-template-columns:1fr 1fr}.outcomeGrid{grid-template-columns:repeat(2,1fr)}}
+
+.homeHero{padding:14px;background:linear-gradient(145deg,#17212b,#11171d);border:1px solid #2b3947;border-radius:10px}
+.homeTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.homeDay{font-family:monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+.homeHeadline{font-size:25px;font-weight:900;margin-top:5px;line-height:1}
+.homeSub{font-size:11px;color:var(--dim);line-height:1.45;margin-top:7px}
+.dayBadge{font-family:monospace;font-size:9px;border:1px solid var(--line);padding:5px 7px;border-radius:999px;white-space:nowrap}
+.dayBadge.work{color:#ffb864;border-color:#604521;background:#291f12}.dayBadge.off{color:#79d9ac;border-color:#285d49;background:#10231c}.dayBadge.earned{color:#8fb6ff;border-color:#294c80;background:#101d30}
+.outcomeProgress{display:grid;gap:7px;margin-top:13px}.outcomeLine{display:grid;grid-template-columns:88px 1fr 42px;gap:7px;align-items:center}.outcomeName{font-size:9px;font-family:monospace;color:var(--dim)}.outcomeTrack{height:8px;background:#202832;border-radius:10px;overflow:hidden}.outcomeTrack i{display:block;height:100%;border-radius:10px}.outcomePct{font-size:10px;font-family:monospace;text-align:right}
+.homeGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.homeMetric{background:#0f151b;border:1px solid var(--lineSoft);border-radius:8px;padding:10px}.homeMetric b{display:block;font-size:20px;font-family:monospace}.homeMetric span{display:block;font-size:9px;color:var(--dimmer);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}
+.remainingList{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.remainingChip{font-family:monospace;font-size:9px;border:1px solid var(--line);background:#10161c;border-radius:999px;padding:5px 7px}.remainingChip.done{color:var(--done)}
+.coachCard{margin-top:10px;background:linear-gradient(135deg,rgba(76,141,255,.12),rgba(79,178,134,.06));border:1px solid #2a4158;border-radius:8px;padding:11px}
+.coachKicker{font-family:monospace;font-size:9px;color:#8fb6ff;letter-spacing:.1em;text-transform:uppercase}.coachMain{font-size:18px;font-weight:900;margin-top:4px}.coachReason{font-size:10px;color:var(--dim);line-height:1.5;margin-top:5px}
+.nextSetCoach{margin:10px 0;background:linear-gradient(135deg,#101b27,#11171d);border:1px solid #2d4660;border-radius:9px;padding:11px}.nextSetTop{display:flex;justify-content:space-between;gap:10px}.nextSetLabel{font-family:monospace;font-size:9px;letter-spacing:.1em;color:#8fb6ff;text-transform:uppercase}.nextSetLoad{font-size:25px;font-weight:900;margin-top:3px}.nextSetAction{font-family:monospace;font-size:9px;border:1px solid #31506b;padding:4px 6px;border-radius:5px;height:max-content;color:#9bc2ff}.nextSetDetails{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.nextSetDetails div{background:#0c1218;border:1px solid var(--lineSoft);border-radius:6px;padding:7px}.nextSetDetails b{display:block;font-family:monospace;font-size:12px}.nextSetDetails span{display:block;font-size:8px;color:var(--dimmer);margin-top:2px;text-transform:uppercase}.nextSetWhy{font-size:10px;color:var(--dim);line-height:1.45;margin-top:7px}
+.timerCountdownWarn{color:#ffd277!important;text-shadow:0 0 10px rgba(232,163,61,.5)}
+.debugTap{position:fixed;left:12px;right:12px;bottom:72px;z-index:90;background:#101820;border:1px solid #3b4c5c;border-left:3px solid #4c8dff;color:#dbe7f4;border-radius:6px;padding:8px 10px;font-family:monospace;font-size:9px;pointer-events:none;opacity:.95}
+.workDayRow{background:rgba(232,163,61,.045)}.offDayRow{background:rgba(79,178,134,.025)}.earnedDayRow{background:rgba(76,141,255,.055)}
+.settingsInline{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px}.settingToggle{border:1px solid var(--line);background:#11171d;color:var(--dim);border-radius:6px;padding:8px 10px;font-family:monospace;font-size:9px}.settingToggle.on{color:#07121f;background:#8fb6ff;border-color:#8fb6ff;font-weight:800}
+@media(max-width:430px){.outcomeLine{grid-template-columns:76px 1fr 36px}.nextSetDetails{grid-template-columns:1fr 1fr 1fr}}
+
 </style>
 <script>
 /* ==================== FredOS Body V5 — Adaptive Rotation Engine ==================== */
 (function(){
-  const V5_VERSION='5.0';
+  const V5_VERSION='5.3';
   const V5_KEY='fredos-v5-engine';
   const oldRenderNow=renderNow, oldRenderSheet=renderSheet, oldRenderBody=renderBody, oldRenderAnalytics=renderAnalytics, oldRenderRotation=renderRotation, oldRenderFusion=renderFusion;
   const V5_TARGETS={
@@ -879,7 +898,7 @@ window.FREDOS_VERSION="5.1 Adaptive";
     d1g:'heavy',d1h:'heavy',d2g:'moderate',d2h:'moderate',d3g:'heavy',d3h:'heavy',d4g:'isolation',d4h:'isolation',d5g:'moderate',d5h:'moderate',d6g:'isolation',d6h:'isolation'
   };
   const baseRest={heavy:150,moderate:120,isolation:75};
-  function v5Defaults(){return {rotationTarget:'full',period:'14d',mixedLegs:false,mixTier:'mid',readiness:{sleep:7,energy:3,soreness:1,stress:2,hrv:'',rhr:''},rotationStart:'2026-08-14',seededA:false,periodView:'14d'} }
+  function v5Defaults(){return {rotationTarget:'full',period:'14d',mixedLegs:false,mixTier:'mid',readiness:{sleep:7,energy:3,soreness:1,stress:2,hrv:'',rhr:''},rotationStart:'2026-08-13',seededA:false,periodView:'14d',autoRest:true,countdownBeep:true,restOverrides:{},migratedA13:false} }
   st.v5={...v5Defaults(),...(st.v5||{})};
   function productiveCredit(row){const rir=Number(row?.rir);if(Number.isNaN(rir))return 1;if(rir<=3)return 1;if(rir===4)return .75;if(rir===5)return .5;if(rir===6)return .25;return .1}
   function v5RangeDays(){return 14}
@@ -923,8 +942,100 @@ window.FREDOS_VERSION="5.1 Adaptive";
   renderAnalytics=function(){const base=oldRenderAnalytics();const data=v5MuscleBank(),top=Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,4);const v5=`<div class="card"><div class="blockHead"><span class="tag">V5 TRENDS</span><span class="note">Six-week productive-set trends for your most-trained muscles.</span></div>${top.map(([m])=>`<div class="trendWrap"><div class="panelTitle">${MUSCLES[m]}</div>${trendSVG(m)}</div>`).join('')}</div>`;return base.replace('<div class="body">','<div class="body">'+renderOutcomeSelector()+v5)}
   function saveReadiness(){st.v5.readiness={sleep:Number(document.getElementById('v5sleep')?.value||7),energy:Number(document.getElementById('v5energy')?.value||3),soreness:Number(document.getElementById('v5sore')?.value||1),stress:Number(document.getElementById('v5stress')?.value||2),hrv:document.getElementById('v5hrv')?.value||'',rhr:document.getElementById('v5rhr')?.value||''};save();showToast(`Readiness ${readinessScore()}/100 saved`);render()}
   renderFusion=function(){const r=st.v5.readiness||{},score=readinessScore();return `<div class="body"><div class="card"><div class="blockHead"><span class="tag">READINESS</span><span class="note">HRV/RHR are optional manual inputs for now. Local muscle recovery and performance remain the primary training constraints.</span></div><div class="readinessGrid"><div><div class="readinessScore">${score}</div><div class="readinessLabel">Readiness score</div></div><div><div class="adaptHeadline">${score>=80?'Push available':score>=60?'Normal training':'Reduce today'}</div><div class="adaptBody">Systemic readiness modifies session ambition; it does not override muscle-specific recovery locks.</div></div></div><div class="formMini"><label>Sleep hours<input id="v5sleep" type="number" step=".1" value="${r.sleep??7}"></label><label>Energy 1–5<input id="v5energy" type="number" min="1" max="5" value="${r.energy??3}"></label><label>Soreness 0–5<input id="v5sore" type="number" min="0" max="5" value="${r.soreness??1}"></label><label>Stress 0–5<input id="v5stress" type="number" min="0" max="5" value="${r.stress??2}"></label><label>HRV optional<input id="v5hrv" inputmode="decimal" value="${r.hrv||''}" placeholder="ms"></label><label>Resting HR optional<input id="v5rhr" inputmode="numeric" value="${r.rhr||''}" placeholder="bpm"></label></div><div class="actionRow" style="padding:12px"><button class="primary" onclick="saveReadiness()">Save readiness</button></div></div>${renderAdaptiveRecommendation()}${renderRecoveryStrip()}<div class="card"><div class="blockHead"><span class="tag">BACKUP</span><span class="note">Local-first database. Export regularly.</span></div><div class="actionRow" style="padding:12px"><button class="secondary" onclick="exportFusion()">Export FredOS JSON</button></div></div></div>`}
-  renderRotation=function(){const start=v5PeriodStart(),end=new Date(start);end.setDate(end.getDate()+13);const rem=v5Remaining(),done=rotationComplete();let base=`<div class="body">${renderOutcomeSelector()}${renderAdaptiveRecommendation()}<div class="card"><div class="blockHead"><span class="tag">ROTATION</span><span class="note">${start.toLocaleDateString()} – ${end.toLocaleDateString()} · fixed 14-day bank</span></div>`;for(let i=0;i<14;i++){const d=new Date(start);d.setDate(d.getDate()+i);const idx=((dayDiff(localDateKey(d),st.anchor||ANCHOR)%14)+14)%14,on=PITMAN[idx]===1,daySessions=completedSessions().filter(s=>localDateKey(new Date(s.start))===localDateKey(d));let status=daySessions.length?'TRAINED':on?'WORK':'OFF';let plan=daySessions.length?daySessions.map(s=>s.key).join(' + '):(on?'Recovery / work night':done?'REST EARNED':'Training available');base+=`<div class="rotationDay"><div class="date">${d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})}</div><div class="plan"><b>${plan}</b><small>${daySessions.length?`${daySessions.reduce((n,s)=>n+sessionSetCount(s),0)} sets logged`:on?'No lifting required':'FredOS will recalc from the bank'}</small></div><div class="status">${status}</div></div>`}return base+`</div><div class="card"><div class="blockHead"><span class="tag">REMAINING</span><span class="note">What still separates you from ${v5Target().label}.</span></div><div class="bankGrid">${rem.map(x=>`<div class="bankCell"><div class="bankHead"><span class="bankName">${MUSCLES[x.m]}</span><span class="bankPct">${Math.round(x.pct)}%</span></div><div class="bankBar"><i style="width:${x.pct}%;background:${v5Target().color}"></i></div><div class="bankMeta">${x.have.toFixed(1)} / ${x.target} · ${x.need>0?`${x.need.toFixed(1)} remaining`:'complete'}</div></div>`).join('')}</div></div></div>`}
-  function seedCompletedA(){if(st.v5.seededA)return;let a=completedSessions().find(s=>s.key==='A'&&localDateKey(new Date(s.start))==='2026-08-14');if(!a){a={id:'reconciled-a-20260814',key:'A',mode:'gym',tier:'max',start:'2026-08-14T00:08:30-05:00',end:'2026-08-14T00:19:20-05:00',reconciled:true,completeOverride:true,exercises:{}};st.sessions.push(a)}
+  renderRotation=function(){const start=v5PeriodStart(),end=new Date(start);end.setDate(end.getDate()+13);const rem=v5Remaining(),done=rotationComplete();let base=`<div class="body">${renderOutcomeSelector()}${renderAdaptiveRecommendation()}<div class="card"><div class="blockHead"><span class="tag">ROTATION</span><span class="note">${start.toLocaleDateString()} – ${end.toLocaleDateString()} · fixed 14-day bank</span></div>`;for(let i=0;i<14;i++){const d=new Date(start);d.setDate(d.getDate()+i);const idx=((dayDiff(localDateKey(d),st.anchor||ANCHOR)%14)+14)%14,on=PITMAN[idx]===1,daySessions=completedSessions().filter(s=>localDateKey(new Date(s.start))===localDateKey(d));let status=daySessions.length?'TRAINED':on?'WORK':'OFF';let plan=daySessions.length?daySessions.map(s=>s.key).join(' + '):(on?'Recovery / work night':done?'REST EARNED':'Training available');base+=`<div class="rotationDay ${daySessions.length?'':on?'workDayRow':done?'earnedDayRow':'offDayRow'}"><div class="date">${d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})}</div><div class="plan"><b>${plan}</b><small>${daySessions.length?`${daySessions.reduce((n,s)=>n+sessionSetCount(s),0)} sets logged`:on?'No lifting required':'FredOS will recalc from the bank'}</small></div><div class="status">${status}</div></div>`}return base+`</div><div class="card"><div class="blockHead"><span class="tag">REMAINING</span><span class="note">What still separates you from ${v5Target().label}.</span></div><div class="bankGrid">${rem.map(x=>`<div class="bankCell"><div class="bankHead"><span class="bankName">${MUSCLES[x.m]}</span><span class="bankPct">${Math.round(x.pct)}%</span></div><div class="bankBar"><i style="width:${x.pct}%;background:${v5Target().color}"></i></div><div class="bankMeta">${x.have.toFixed(1)} / ${x.target} · ${x.need>0?`${x.need.toFixed(1)} remaining`:'complete'}</div></div>`).join('')}</div></div></div>`}
+
+  function isWorkCalendarDay(d=new Date()){
+    const idx=((dayDiff(localDateKey(d),st.anchor||ANCHOR)%14)+14)%14;
+    return PITMAN[idx]===1;
+  }
+  function futureOffWindows(){
+    const s=v5PeriodStart(),today=new Date();let n=0;
+    for(let i=0;i<14;i++){const d=new Date(s);d.setDate(d.getDate()+i);if(d<new Date(localDateKey(today)+'T00:00:00'))continue;if(!isWorkCalendarDay(d))n++}
+    return n;
+  }
+  function estimatedRemainingMinutes(targetKey=st.v5.rotationTarget){
+    const T=V5_TARGETS[targetKey]||v5Target(),bank=v5MuscleBank();
+    let setEq=0;
+    Object.entries(T.targets).forEach(([m,t])=>setEq+=Math.max(0,t-(bank[m]||0)));
+    // fractional credits overlap between compounds, so convert with a conservative 0.58 factor.
+    const workingSets=setEq*.58;
+    return Math.max(0,Math.round(workingSets*1.55));
+  }
+  function outcomeColor(k){return V5_TARGETS[k]?.color||'#4c8dff'}
+  function topRemainingFor(key='max',limit=7){
+    const T=V5_TARGETS[key],bank=v5MuscleBank();
+    return Object.entries(T.targets).map(([m,t])=>({m,need:Math.max(0,t-(bank[m]||0)),pct:Math.min(100,(bank[m]||0)/t*100)})).filter(x=>x.need>.05).sort((a,b)=>b.need-a.need).slice(0,limit)
+  }
+  function renderHomeDashboard(){
+    const d=new Date(),work=isWorkCalendarDay(d),doneMax=v5OutcomePct('max')>=100,target=v5Target(),rem=topRemainingFor('max',8);
+    const rec=adaptiveNextMove(),mins=estimatedRemainingMinutes('max'),off=futureOffWindows();
+    const restCount=Math.max(0,off-Math.ceil(mins/35));
+    return `<div class="body">
+      <div class="homeHero">
+        <div class="homeTop"><div><div class="homeDay">${d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}</div><div class="homeHeadline">${doneMax?'MAX BANKED — RECOVER':work?'WORK DAY':'OFF / TRAINING WINDOW'}</div><div class="homeSub">${doneMax?'You have already banked the Max Growth target for this 14-day rotation. Additional work is optional unless a specific muscle was missed.':rec.summary}</div></div><span class="dayBadge ${doneMax?'earned':work?'work':'off'}">${doneMax?'REST EARNED':work?'WORK':'OFF'}</span></div>
+        <div class="outcomeProgress">${['stabilize','vbuild','full','max'].map(k=>{const p=v5OutcomePct(k);return `<div class="outcomeLine"><span class="outcomeName">${V5_TARGETS[k].label}</span><span class="outcomeTrack"><i style="width:${Math.min(100,p)}%;background:${outcomeColor(k)}"></i></span><span class="outcomePct">${p}%</span></div>`}).join('')}</div>
+        <div class="homeGrid"><div class="homeMetric"><b>${mins}m</b><span>est. work left to MAX</span></div><div class="homeMetric"><b>${restCount}</b><span>potential earned rest windows</span></div><div class="homeMetric"><b>${completedSessions().filter(s=>v5InRotation(s.start)).length}</b><span>rotation workouts</span></div><div class="homeMetric"><b>${v5Grade()}</b><span>${target.label} grade</span></div></div>
+      </div>
+      <div class="card"><div class="blockHead"><span class="tag">BEST MOVE</span><span class="note">Based on volume bank + local muscle recovery + your fixed work/off calendar.</span></div><div class="adaptCard"><div class="adaptHeadline">${rec.title}</div><div class="adaptBody">${rec.reason}</div><div class="nextMoves">${rec.moves.map(x=>`<span class="nextMove">${x}</span>`).join('')}</div></div></div>
+      <div class="card"><div class="blockHead"><span class="tag">MAX REMAINING</span><span class="note">${v5OutcomePct('max')}% banked · ${mins} estimated minutes left.</span></div><div class="remainingList" style="padding:0 12px 12px">${rem.length?rem.map(x=>`<span class="remainingChip">${MUSCLES[x.m]} +${x.need.toFixed(1)}</span>`).join(''):'<span class="remainingChip done">All MAX targets banked ✓</span>'}</div></div>
+      ${renderRecoveryStrip()}
+      <div class="card"><div class="blockHead"><span class="tag">AUTOMATION</span><span class="note">Set timer behavior.</span></div><div class="settingsInline"><button class="settingToggle ${st.v5.autoRest!==false?'on':''}" onclick="toggleAutoRest()">Auto-start recommended rest: ${st.v5.autoRest!==false?'ON':'OFF'}</button><button class="settingToggle ${st.v5.countdownBeep!==false?'on':''}" onclick="toggleCountdownBeep()">10-sec beep: ${st.v5.countdownBeep!==false?'ON':'OFF'}</button></div></div>
+    </div>`;
+  }
+  function adaptiveNextMove(){
+    const remaining=v5Remaining().filter(x=>x.need>.05);
+    const available=remaining.filter(x=>muscleRecovery(x.m).status!=='red');
+    if(v5OutcomePct(st.v5.rotationTarget)>=100)return {title:'Recovery day earned',summary:`${v5Target().label} is fully banked.`,reason:'Your selected rotation target is complete. More volume is optional and has diminishing expected return.',moves:['REST','Mobility / walking optional']};
+    if(!available.length)return {title:'Rest — needed muscles are recovering',summary:'The muscles that still need volume are not ready yet.',reason:'FredOS is protecting the next productive session rather than forcing volume into a recovery window.',moves:['REST','Recheck next window']};
+    const top=available.slice(0,4);
+    const lower=top.filter(x=>['quads','hams','glutes','calves','lowerBack'].includes(x.m)).length;
+    const title=lower>=2?'Lower-body work has highest value':'Upper / mixed work has highest value';
+    return {title,summary:`${MUSCLES[top[0].m]} is the largest available gap toward ${v5Target().label}.`,reason:`Prioritize recovered muscles with the largest remaining bank deficits. You do not have to finish the original template if its target muscles are already complete.`,moves:top.map(x=>`${MUSCLES[x.m]} +${x.need.toFixed(1)}`)};
+  }
+  function restClassFor(id){return V5_REST_CLASS[id]||'moderate'}
+  function recommendedRestSeconds(id){
+    const cls=restClassFor(id),base=baseRest[cls]||120,rec=currentExercise(id),rows=rec?.sets||[];
+    let sec=Number(st.v5.restOverrides?.[id]||base);
+    if(rows.length>=2){
+      const a=rows.at(-2),b=rows.at(-1),repDrop=(Number(a.r)||0)-(Number(b.r)||0),dropPct=(Number(a.r)||0)?repDrop/Number(a.r):0;
+      if(dropPct>=.20 && Number(b.actualRest||0)<sec)sec+=30;
+      if(Number(b.rir)===0)sec+=30;
+      if(Number(b.rir)>=3 && dropPct<=.05)sec=Math.max(base,sec-15);
+    }
+    return Math.max(60,Math.min(240,Math.round(sec/15)*15));
+  }
+  function nextSetRecommendation(id){
+    const ex=exById(id),cur=currentExercise(id),sets=cur?.sets||[],prev=lastExerciseRecord(id),last=sets.at(-1);
+    const rest=recommendedRestSeconds(id);
+    if(!last){
+      const seed=prev?.sets?.at(-1);
+      const w=Number(seed?.w)||Number(String(ex.load).replace(/[^\d.]/g,''))||0;
+      return {weight:w,reps:`${ex.lo}–${ex.hi}`,rir:'1–3',rest,action:'START',why:'Use the programmed starting load and preserve reps with the full recommended rest.'};
+    }
+    const w=Number(last.w)||0,r=Number(last.r)||0,rir=Number(last.rir);
+    let weight=w,reps=`${ex.lo}–${ex.hi}`,action='HOLD',why='Performance is in range. Hold load and build reps before adding weight.';
+    const prior=sets.at(-2),drop=prior&&Number(prior.r)>0?(Number(prior.r)-r)/Number(prior.r):0;
+    if(prior && drop>=.20 && Number(last.actualRest||0)<rest){
+      action='REST LONGER'; why='Rep drop is large and your previous rest was shorter than FredOS recommends. Keep the load and recover longer before changing weight.';
+    } else if(rir>=4 || (r>=ex.hi && rir>=3)){
+      weight=+(w+Number(ex.step||0)).toFixed(1); action='ADD LOAD'; why='You reached the top of the rep range with more reps in reserve than the target effort.';
+    } else if(rir===0 && r<ex.lo){
+      weight=+(w*.95).toFixed(1); action='REDUCE ~5%'; why='You hit failure below the rep floor. Reduce load slightly so the next set lands inside the target range.';
+    } else if(rir===0){
+      action='HOLD / FULL REST'; why='You reached failure. Do not add load yet; take the full rest and aim to keep the next set inside range.';
+    } else if(r<ex.lo && rir<=1){
+      weight=+(w*.975).toFixed(1); action='SMALL DROP'; why='You are below the rep floor and near failure. A small load reduction should protect productive reps.';
+    }
+    return {weight,reps,rir:'1–3',rest,action,why};
+  }
+  function renderNextSetCoach(id){
+    const rec=nextSetRecommendation(id),cur=currentExercise(id),n=(cur?.sets?.length||0)+1;
+    return `<div class="nextSetCoach"><div class="nextSetTop"><div><div class="nextSetLabel">Next set recommendation · Set ${n}</div><div class="nextSetLoad">${rec.weight||'—'} lb × ${rec.reps}</div></div><span class="nextSetAction">${rec.action}</span></div><div class="nextSetDetails"><div><b>${secFmt(rec.rest)}</b><span>recommended rest</span></div><div><b>${rec.rir} RIR</b><span>target effort</span></div><div><b>${restClassFor(id)}</b><span>exercise class</span></div></div><div class="nextSetWhy">${rec.why}</div></div>`;
+  }
+  function toggleAutoRest(){st.v5.autoRest=!(st.v5.autoRest!==false);save();render()}
+  function toggleCountdownBeep(){st.v5.countdownBeep=!(st.v5.countdownBeep!==false);save();render()}
+
+  function seedCompletedA(){if(st.v5.seededA)return;let a=completedSessions().find(s=>s.key==='A'&&localDateKey(new Date(s.start))==='2026-08-13');if(!a){a={id:'reconciled-a-20260813',key:'A',mode:'gym',tier:'max',start:'2026-08-13T08:30:00-05:00',end:'2026-08-13T09:20:00-05:00',reconciled:true,completeOverride:true,exercises:{}};st.sessions.push(a)}
     const known={
       a1g:{name:'Wide-grip lat pulldown',sets:[['100',12,3],['—','—',2],['—','—',2],['—','—',2]]},
       a2g:{name:'Incline barbell press',sets:[['170',12,3],['—','—',2],['—','—',2],['180',6,1]]},
@@ -935,13 +1046,49 @@ window.FREDOS_VERSION="5.1 Adaptive";
       a7g:{name:'Barbell curl',sets:[['10',12,0],['15',8,1],['10',8,1]]}
     };
     let sec=0;Object.entries(known).forEach(([id,k])=>{if(!a.exercises[id])a.exercises[id]={name:k.name,sets:[]};if(a.exercises[id].sets.length<k.sets.length){a.exercises[id].sets=k.sets.map((x,i)=>({w:x[0],r:x[1],rir:x[2],ts:new Date(new Date(a.start).getTime()+(sec++*38000)).toISOString(),actualRest:i?90:null,reconciled:x[0]==='—'}))}});a.reconciled=true;a.completeOverride=true;
-    if(!st.cardio.some(x=>x.day==='2026-08-14'&&x.type==='Elliptical'&&Number(x.minutes)===20))st.cardio.push({id:'reconciled-cardio-20260814',ts:'2026-08-14T00:24:00-05:00',day:'2026-08-14',type:'Elliptical',minutes:20,intensity:'moderate',note:'Reconciled from workout log'});
+    if(!st.cardio.some(x=>x.day==='2026-08-13'&&x.type==='Elliptical'&&Number(x.minutes)===20))st.cardio.push({id:'reconciled-cardio-20260813',ts:'2026-08-13T09:35:00-05:00',day:'2026-08-13',type:'Elliptical',minutes:20,intensity:'moderate',note:'Reconciled from workout log'});
     st.qi=1;st.active=null;st.v5.seededA=true;save();recalculatePRFlags();
   }
   const oldHistSheet=renderHistorySessionSheet;renderHistorySessionSheet=function(id){let h=oldHistSheet(id);const s=completedSessions().find(x=>x.id===id);if(s?.reconciled)h=h.replace('<div class="sheetMeta">','<div class="sheetMeta"><span class="reconciled">RECONCILED HISTORY</span> ');return h}
   seedCompletedA();
-  document.title='FredOS Body V5.2 Adaptive';
-  window.setRotationTarget=setRotationTarget;window.toggleMixedLegs=toggleMixedLegs;window.setMixTier=setMixTier;window.setV5BodyPeriod=setV5BodyPeriod;window.saveReadiness=saveReadiness;
+
+  function migrateAtoAug13(){
+    if(st.v5.migratedA13)return;
+    const candidates=completedSessions().filter(s=>s.key==='A').sort((a,b)=>new Date(a.start)-new Date(b.start));
+    const a=candidates[0];
+    if(a){
+      const oldStart=new Date(a.start),oldEnd=new Date(a.end||a.start),duration=Math.max(10*60*1000,oldEnd-oldStart);
+      const targetStart=new Date('2026-08-13T08:30:00-05:00');
+      const delta=targetStart-oldStart;
+      a.start=targetStart.toISOString();a.end=new Date(targetStart.getTime()+duration).toISOString();
+      Object.values(a.exercises||{}).forEach(rec=>(rec.sets||[]).forEach(row=>{if(row.ts)row.ts=new Date(new Date(row.ts).getTime()+delta).toISOString()}));
+      a.actualTrainingDate='2026-08-13';a.dateCorrected=true;
+    }
+    st.cardio.forEach(x=>{if(x.id==='reconciled-cardio-20260813'||(x.day==='2026-08-13'&&x.type==='Elliptical'&&Number(x.minutes)===20)){x.day='2026-08-13';x.ts='2026-08-13T09:35:00-05:00'}});
+    st.v5.rotationStart='2026-08-13';st.v5.migratedA13=true;save();
+  }
+
+  migrateAtoAug13();
+
+document.addEventListener('pointerup',function(e){
+  const btn=e.target.closest?.('[data-open-ex]');
+  if(!btn)return;
+  const id=btn.getAttribute('data-open-ex'),n=Number(btn.getAttribute('data-target-sets')||0);
+  window.__lastTapDebug=`tap ${id} @ ${new Date().toLocaleTimeString()}`;
+  openExercise(id,n);
+},{passive:true});
+document.addEventListener('touchend',function(e){
+  const btn=e.target.closest?.('[data-open-ex]');
+  if(!btn)return;
+  // pointer events handle modern Safari; this is a fallback only.
+  if(window.__lastTouchOpen && Date.now()-window.__lastTouchOpen<500)return;
+  window.__lastTouchOpen=Date.now();
+  const id=btn.getAttribute('data-open-ex'),n=Number(btn.getAttribute('data-target-sets')||0);
+  openExercise(id,n);
+},{passive:true});
+
+  document.title='FredOS Body V5.3 Adaptive';
+  window.setRotationTarget=setRotationTarget;window.toggleMixedLegs=toggleMixedLegs;window.setMixTier=setMixTier;window.setV5BodyPeriod=setV5BodyPeriod;window.saveReadiness=saveReadiness;window.toggleAutoRest=toggleAutoRest;window.toggleCountdownBeep=toggleCountdownBeep;window.renderHomeDashboard=renderHomeDashboard;
   render();
 })();
 </script>
