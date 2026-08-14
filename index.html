@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>FredOS Body V5.1 Adaptive Fusion</title>
+<title>FredOS Body V5.2 Adaptive Fusion</title>
 <meta name="theme-color" content="#0E1216"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -544,7 +544,7 @@ function render(){
  const activePct=st.active&&activeTotal?Math.min(100,Math.round(activeSets/activeTotal*100)):0;
  app.innerHTML=`
  <div class="shell">
-  <div class="head"><div><div class="eyebrow">FredOS · Body V5.1 ADAPTIVE · Fusion</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
+  <div class="head"><div><div class="eyebrow">FredOS · Body V5.2 ADAPTIVE · Fusion</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
   <div class="cons"><div class="bars">${[0,1,2,3].map(i=>`<i class="bar ${i<Math.min(recent,4)?'on':''}"></i>`).join('')}</div><div class="consTxt">${st.active?`Lift #${lifts.length+1} · Session ${st.active.key} live · ${activeSets}/${activeTotal} sets · ${activePct}%`:`${lifts.length} completed lift${lifts.length===1?'':'s'} · next up ${queueKey}`}</div><div class="consProgress"><i style="width:${st.active?activePct:Math.min(100,recent*25)}%"></i></div></div>
   <div class="tabs">${[['now','Next up'],['cardio','Cardio'],['body','Muscle IQ'],['history','History'],['analytics','Trends'],['cycle','Rotation'],['program','Program'],['fusion','Readiness'],['rules','Rules']].map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="goTab('${k}')">${l}</button>`).join('')}</div>
   ${tab==='now'?renderNow(sess,key,queueKey):tab==='cardio'?renderCardio():tab==='body'?renderBody(PROGRAM[queueKey]):tab==='history'?renderHistory():tab==='analytics'?renderAnalytics():tab==='cycle'?renderRotation():tab==='program'?renderProgram():tab==='fusion'?renderFusion():renderRules()}
@@ -599,6 +599,8 @@ function renderExerciseRow(ex,block){
 }
 function renderSheet(id){
  const ex=exById(id),prev=lastExerciseRecord(id),cur=currentExercise(id);
+ if(!ex){openId=null;draft=[];return '';}
+ const targetSets=Math.max(1,Number(window.__targetSets||ex.sets||1));
  if(!draft.length)makeDraft(ex,cur,prev);
  return `<div class="sheetWrap" onclick="closeSheet(event)"><div class="sheet" onclick="event.stopPropagation()">
   <div class="sheetHead"><div><div class="sheetName">${ex.name}</div><div class="sheetMeta">Target ${targetSets} × ${ex.lo===ex.hi?ex.lo:`${ex.lo}–${ex.hi}`} · 1–3 RIR · each set saves weight, reps, RIR, date + exact time</div></div><button class="x" onclick="openId=null;draft=[];render()">✕</button></div>
@@ -938,7 +940,7 @@ window.FREDOS_VERSION="5.1 Adaptive";
   }
   const oldHistSheet=renderHistorySessionSheet;renderHistorySessionSheet=function(id){let h=oldHistSheet(id);const s=completedSessions().find(x=>x.id===id);if(s?.reconciled)h=h.replace('<div class="sheetMeta">','<div class="sheetMeta"><span class="reconciled">RECONCILED HISTORY</span> ');return h}
   seedCompletedA();
-  document.title='FredOS Body V5 Adaptive';
+  document.title='FredOS Body V5.2 Adaptive';
   window.setRotationTarget=setRotationTarget;window.toggleMixedLegs=toggleMixedLegs;window.setMixTier=setMixTier;window.setV5BodyPeriod=setV5BodyPeriod;window.saveReadiness=saveReadiness;
   render();
 })();
