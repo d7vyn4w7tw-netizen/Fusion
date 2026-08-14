@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>FredOS Body V4.3 Pro Fusion</title>
+<title>FredOS Body V4.4 Pro Fusion</title>
 <meta name="theme-color" content="#0E1216"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -107,6 +107,12 @@ button{cursor:pointer}
 .histButton:active{background:var(--panel2)}
 .reviewEx{cursor:default}.reviewEx:active{background:none}
 .sessionCount{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--signal);font-size:10px;font-weight:800;margin-top:3px}
+.tierGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:10px 10px 4px;border-top:1px solid var(--lineSoft)}
+.tierBtn{border:1px solid var(--line);background:var(--panel2);border-radius:9px;padding:9px 4px 8px;color:var(--dim);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;font-weight:900;letter-spacing:.04em;cursor:pointer}.tierBtn small{display:block;font-size:7px;font-weight:600;margin-top:3px;opacity:.85}.tierBtn.on{color:#071018;transform:translateY(-1px);box-shadow:0 5px 18px rgba(0,0,0,.28)}
+.tierBtn.min.on{background:#7f8c98;border-color:#7f8c98}.tierBtn.med.on{background:#4fb286;border-color:#4fb286}.tierBtn.mid.on{background:#4c8dff;border-color:#4c8dff}.tierBtn.max.on{background:#e8a33d;border-color:#e8a33d}.tierBtn.fast.on{background:#e2664f;border-color:#e2664f}
+.tierInfo{margin:6px 10px 10px;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.018);display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.tierInfo b{font-size:12px}.tierInfo span{display:block;color:var(--dim);font-size:10px;line-height:1.45;margin-top:2px}.tierTime{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px!important;color:var(--bone)!important;text-align:right;white-space:nowrap}
+@media(max-width:430px){.tierGrid{grid-template-columns:repeat(5,1fr);gap:3px;padding-left:7px;padding-right:7px}.tierBtn{font-size:8px;padding-left:2px;padding-right:2px}.tierBtn small{font-size:6.5px}}
+
 
 @media(min-width:650px){.body{padding-left:16px;padding-right:16px}.sheet{padding-left:20px;padding-right:20px}.statGrid{grid-template-columns:repeat(4,1fr)}.statCell{border-right:1px solid var(--lineSoft)!important}.statCell:last-child{border-right:0!important}}
 
@@ -155,7 +161,7 @@ body{background:
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 
 
-/* ===== V4.3 PRO: PROGRAM EDITING + PREMIUM WORKOUT UI ===== */
+/* ===== V4.4 PRO: PROGRAM EDITING + PREMIUM WORKOUT UI ===== */
 .proDash{position:relative;overflow:hidden;background:
  radial-gradient(480px 220px at 12% -30%,rgba(76,141,255,.30),transparent 68%),
  radial-gradient(360px 180px at 100% 0%,rgba(133,118,255,.20),transparent 68%),
@@ -375,13 +381,23 @@ function effectiveEx(ex){const base=typeof ex==='string'?baseExById(ex):ex;if(!b
 function exById(id){return effectiveEx(baseExById(id))}
 function isDeleted(id){return Array.isArray(st?.deletedExercises)&&st.deletedExercises.includes(id)}
 function musclesForId(id){return st?.exerciseEdits?.[id]?.muscles||MM[id]||{}}
-function countSets(s,mode,len){return s.blocks.filter(b=>len==='full'||b.tag!=='S3').reduce((n,b)=>n+b.pair.reduce((m,p)=>{const ex=effectiveEx(p[mode]);return m+(!ex||isDeleted(ex.id)?0:Number(ex.sets||0))},0),0)}
-function sessionMuscles(s,mode,len){const out={};s.blocks.filter(b=>len==='full'||b.tag!=='S3').forEach(b=>b.pair.forEach(p=>{const ex=effectiveEx(p[mode]);if(!ex||isDeleted(ex.id))return;const mm=musclesForId(ex.id);Object.entries(mm).forEach(([k,v])=>out[k]=(out[k]||0)+v*Number(ex.sets||0))}));return out}
+const TIERS={
+ min:{name:'MIN',time:'~12 min',days:'up to 7 / 14d',effect:'Stabilization / maintain',desc:'S1 only — your floor when time or energy is tight.'},
+ med:{name:'MED',time:'~17 min',days:'up to 7 / 14d',effect:'Build priority',desc:'S1 + lateral raises on upper days or calves on lower days.'},
+ mid:{name:'MID',time:'~21 min',days:'7 slots / 14d',effect:'Full growth',desc:'S1 + S2 — efficient whole-body growth default.'},
+ max:{name:'MAX',time:'~26–32 min',days:'7 slots / 14d',effect:'Max-growth volume',desc:'S1 + S2 + S3 — full program and extra accessory volume.'},
+ fast:{name:'FAST',time:'~35–45 min',days:'target ~6 / 14d',effect:'Aggressive full build',desc:'MAX plus one extra set on lead/priority work. Use when recovery and performance stay strong.'}
+};
+function tierKey(){return TIERS[st?.tier]?st.tier:(st?.len==='full'?'max':'mid')}
+function includeExercise(block,ex,sessKey,tier=tierKey()){if(tier==='min')return block.tag==='S1';if(tier==='med'){if(block.tag==='S1')return true;return ['a3g','a3h','c3g','c3h','b4g','b4h','d4g','d4h'].includes(ex.id)}if(tier==='mid')return block.tag!=='S3';return true}
+function tierSets(ex,block,tier=tierKey()){let n=Number(ex.sets||0);if(tier==='fast'&&(block.tag==='S1'||['a3g','a3h','c3g','c3h','b4g','b4h','d4g','d4h'].includes(ex.id)))n+=1;return n}
+function countSets(s,mode,len){const tier=tierKey();return s.blocks.reduce((n,b)=>n+b.pair.reduce((m,p)=>{const ex=effectiveEx(p[mode]);return m+(!ex||isDeleted(ex.id)||!includeExercise(b,ex,s.key,tier)?0:tierSets(ex,b,tier))},0),0)}
+function sessionMuscles(s,mode,len){const out={},tier=tierKey();s.blocks.forEach(b=>b.pair.forEach(p=>{const ex=effectiveEx(p[mode]);if(!ex||isDeleted(ex.id)||!includeExercise(b,ex,s.key,tier))return;const mm=musclesForId(ex.id);Object.entries(mm).forEach(([k,v])=>out[k]=(out[k]||0)+v*tierSets(ex,b,tier))}));return out}
 function heat(v,band=7){if(!v)return '#1B232B';if(v>band*1.35)return '#E8A33D';const t=Math.min(v/band,1),a=[42,57,71],b=[76,141,255],c=a.map((x,i)=>Math.round(x+(b[i]-x)*t));return `rgb(${c.join(',')})`}
 function sessionSetCount(s){return Object.values(s?.exercises||{}).reduce((n,r)=>n+(Array.isArray(r?.sets)?r.sets.length:0),0)}
 function completedSessions(){return (Array.isArray(st?.sessions)?st.sessions:[]).filter(s=>sessionSetCount(s)>0)}
 function lastCompletedByKey(key){const rows=completedSessions().filter(s=>s.key===key);return rows.at(-1)||null}
-function defaultState(){return {qi:0,mode:'gym',len:'core',anchor:ANCHOR,sessions:[],active:null,restPreset:120,cardio:[],bodyLogs:[],exerciseEdits:{},deletedExercises:[]}}
+function defaultState(){return {qi:0,mode:'gym',len:'core',tier:'mid',anchor:ANCHOR,sessions:[],active:null,restPreset:120,cardio:[],bodyLogs:[],exerciseEdits:{},deletedExercises:[]}}
 let st;try{st={...defaultState(),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){st=defaultState()}
 st.sessions=Array.isArray(st.sessions)?st.sessions:[];
 st.cardio=Array.isArray(st.cardio)?st.cardio:[];
@@ -475,7 +491,7 @@ function activeSession(){
 }
 function ensureActive(){
  if(st.active)return;
- st.active={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),key:ORDER[st.qi],mode:st.mode,len:st.len,start:new Date().toISOString(),end:null,exercises:{}};
+ st.active={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),key:ORDER[st.qi],mode:st.mode,len:st.len,tier:tierKey(),start:new Date().toISOString(),end:null,exercises:{}};
  save();
 }
 function lastExerciseRecord(id){
@@ -513,7 +529,7 @@ function render(){
  const activePct=st.active&&activeTotal?Math.min(100,Math.round(activeSets/activeTotal*100)):0;
  app.innerHTML=`
  <div class="shell">
-  <div class="head"><div><div class="eyebrow">FredOS · Body V4.3 PRO · Fusion</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
+  <div class="head"><div><div class="eyebrow">FredOS · Body V4.4 PRO · Fusion</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
   <div class="cons"><div class="bars">${[0,1,2,3].map(i=>`<i class="bar ${i<Math.min(recent,4)?'on':''}"></i>`).join('')}</div><div class="consTxt">${st.active?`Lift #${lifts.length+1} · Session ${st.active.key} live · ${activeSets}/${activeTotal} sets · ${activePct}%`:`${lifts.length} completed lift${lifts.length===1?'':'s'} · next up ${queueKey}`}</div><div class="consProgress"><i style="width:${st.active?activePct:Math.min(100,recent*25)}%"></i></div></div>
   <div class="tabs">${[['now','Next up'],['cardio','Cardio'],['body','Body'],['history','History'],['analytics','Analytics'],['cycle','Rotation'],['program','Program'],['fusion','Fusion'],['rules','Rules']].map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="goTab('${k}')">${l}</button>`).join('')}</div>
   ${tab==='now'?renderNow(sess,key,queueKey):tab==='cardio'?renderCardio():tab==='body'?renderBody(PROGRAM[queueKey]):tab==='history'?renderHistory():tab==='analytics'?renderAnalytics():tab==='cycle'?renderRotation():tab==='program'?renderProgram():tab==='fusion'?renderFusion():renderRules()}
@@ -540,13 +556,14 @@ function renderNow(sess,key,queueKey){
   </div>
   ${reviewMode?`<div class="reviewBanner"><b>Browsing does not advance the queue.</b> Your real next workout is ${queueKey}. This screen shows the most recent completed ${key} workout, so you can go back without creating fake sessions or losing your place.</div>`:''}
   ${!reviewMode?`<div class="toggleRow">${['gym','home'].map(m=>`<button class="toggle ${st.mode===m?'on':''}" onclick="setMode('${m}')">${m==='gym'?'Gym':'Home · dumbbells'}</button>`).join('')}</div>
-  <div class="toggleRow"><button class="toggle ${st.len==='core'?'on':''}" onclick="setLen('core')">Core · S1+S2</button><button class="toggle ${st.len==='full'?'on':''}" onclick="setLen('full')">Full · + finisher</button></div>`:''}
+  <div class="tierGrid">${Object.entries(TIERS).map(([k,t])=>`<button class="tierBtn ${k} ${tierKey()===k?'on':''}" onclick="setTier('${k}')">${t.name}<small>${t.time.replace('~','')}</small></button>`).join('')}</div>
+  <div class="tierInfo"><div><b>${TIERS[tierKey()].effect} · ${TIERS[tierKey()].name}</b><span>${TIERS[tierKey()].desc}</span><span>${TIERS[tierKey()].days} training schedule</span></div><span class="tierTime">${TIERS[tierKey()].time}<br>${countSets(sess,st.mode,st.len)} sets</span></div>`:''}
  </div>
  ${renderWorkoutDashboard(sess,key,reviewMode,live,saved,total)}
- ${sess.blocks.map(b=>`<div class="card" style="${b.tag==='S3'&&st.len==='core'?'opacity:.44;border-style:dashed':''}">
-  <div class="blockHead"><span class="tag">${b.tag}</span><span class="note">${b.tag==='S3'&&st.len==='core'?'Skipped on core. ':''}${b.note}</span></div>
-  ${b.pair.filter(p=>reviewMode||!isDeleted(p[st.mode].id)).map(p=>{const ex=effectiveEx(p[st.mode]);return reviewMode?renderReviewExerciseRow(ex,last):renderExerciseRow(ex)}).join('')||'<div class="fusionNote">No exercises in this block. Restore or edit movements from Program.</div>'}
- </div>`).join('')}
+ ${sess.blocks.map(b=>{const visible=b.pair.filter(p=>{const ex=effectiveEx(p[st.mode]);return reviewMode||(ex&&!isDeleted(ex.id)&&includeExercise(b,ex,sess.key,tierKey()))});if(!reviewMode&&!visible.length)return '';return `<div class="card">
+  <div class="blockHead"><span class="tag">${b.tag}</span><span class="note">${b.note}</span></div>
+  ${visible.map(p=>{const ex=effectiveEx(p[st.mode]);return reviewMode?renderReviewExerciseRow(ex,last):renderExerciseRow(ex,b)}).join('')}
+ </div>`}).join('')}
  ${reviewMode?`<button class="primary" onclick="returnToQueue()">Return to next up ${queueKey}</button>${last?`<button class="secondary" onclick="openHistorySession('${last.id}')">Open full ${key} workout record</button>`:''}`:`<button class="primary" onclick="closeSession()">${live?`Finish session ${key} · ${saved} set${saved===1?'':'s'} saved`:`Start session ${key}`}</button>`}
  <div class="floor"><div class="ft">${reviewMode?'Review without moving the queue':'Your place is saved'}</div><p>${reviewMode?'Use the arrows to inspect A/B/C/D. Only finishing a workout with at least one saved set advances the real queue.':`Every saved set is written to local storage immediately. Leave this tab, reopen the app, or inspect History and session ${key} resumes with the saved sets intact.`}</p></div>
  </div>`;
@@ -556,17 +573,17 @@ function renderReviewExerciseRow(ex,s){
  const txt=sets.length?sets.map((x,i)=>`S${i+1} ${x.w}×${x.r} @${x.rir}${x.pr?' ★PR':''}`).join(' · '):'not performed in that workout';
  return `<div class="ex reviewEx"><div><div class="exName">${rec?.name||ex.name}</div><div class="exSub"><span>${txt}</span></div></div><div class="target"><div class="targetMain">${sets.length}/${ex.sets} sets</div><span class="pill ${sets.length?'done':''}">${sets.length?'saved':'—'}</span></div></div>`;
 }
-function renderExerciseRow(ex){
+function renderExerciseRow(ex,block){
  const prev=lastExerciseRecord(ex.id),cur=currentExercise(ex.id),ref=cur?.sets?.length?cur:prev;
- const p=progression(ex,ref),done=cur?.sets?.length>=ex.sets,hasPR=cur?.sets?.some(x=>x.pr),muscle=primaryMuscle(ex.id);
+ const targetSets=tierSets(ex,block,tierKey()),p=progression({...ex,sets:targetSets},ref),done=cur?.sets?.length>=targetSets,hasPR=cur?.sets?.some(x=>x.pr),muscle=primaryMuscle(ex.id);
  const prevTxt=prev?.sets?.map(s=>`${s.w}×${s.r}${s.pr?'★':''}`).join(' · ')||'no history';
- return `<div class="exManage"><button class="exTap" onclick="openExercise('${ex.id}')"><div><div class="exName">${ex.name}${done?' <span style="color:var(--done)">●</span>':''} ${hasPR?'<span class="prBadge">★ PR</span>':''}</div><div class="exSub"><span style="color:var(--dimmer)">prev</span><span class="${IMPORTED[ex.id]&&!st.sessions.some(s=>s.exercises?.[ex.id])?'imported':''}">${prevTxt}</span>${prev?.label?`<span class="chip">${prev.label}</span>`:''}${muscle?`<span class="muscleMiniLabel">${muscle}</span>`:''}</div></div><div class="target"><div class="targetMain">${ex.sets} × ${ex.lo===ex.hi?ex.lo:`${ex.lo}–${ex.hi}`}</div><span class="pill ${p.startsWith('ADD')?'hot':done?'done':''}">${p}</span></div></button><button class="exGear" onclick="openExerciseEditor('${ex.id}')" aria-label="Edit ${ex.name}">•••</button></div>`
+ return `<div class="exManage"><button class="exTap" onclick="openExercise('${ex.id}',${targetSets})"><div><div class="exName">${ex.name}${done?' <span style="color:var(--done)">●</span>':''} ${hasPR?'<span class="prBadge">★ PR</span>':''}</div><div class="exSub"><span style="color:var(--dimmer)">prev</span><span class="${IMPORTED[ex.id]&&!st.sessions.some(s=>s.exercises?.[ex.id])?'imported':''}">${prevTxt}</span>${prev?.label?`<span class="chip">${prev.label}</span>`:''}${muscle?`<span class="muscleMiniLabel">${muscle}</span>`:''}</div></div><div class="target"><div class="targetMain">${targetSets} × ${ex.lo===ex.hi?ex.lo:`${ex.lo}–${ex.hi}`}</div><span class="pill ${p.startsWith('ADD')?'hot':done?'done':''}">${p}</span></div></button><button class="exGear" onclick="openExerciseEditor('${ex.id}')" aria-label="Edit ${ex.name}">•••</button></div>`
 }
 function renderSheet(id){
  const ex=exById(id),prev=lastExerciseRecord(id),cur=currentExercise(id);
  if(!draft.length)makeDraft(ex,cur,prev);
  return `<div class="sheetWrap" onclick="closeSheet(event)"><div class="sheet" onclick="event.stopPropagation()">
-  <div class="sheetHead"><div><div class="sheetName">${ex.name}</div><div class="sheetMeta">Target ${ex.sets} × ${ex.lo===ex.hi?ex.lo:`${ex.lo}–${ex.hi}`} · 1–3 RIR · each set saves weight, reps, RIR, date + exact time</div></div><button class="x" onclick="openId=null;draft=[];render()">✕</button></div>
+  <div class="sheetHead"><div><div class="sheetName">${ex.name}</div><div class="sheetMeta">Target ${targetSets} × ${ex.lo===ex.hi?ex.lo:`${ex.lo}–${ex.hi}`} · 1–3 RIR · each set saves weight, reps, RIR, date + exact time</div></div><button class="x" onclick="openId=null;draft=[];render()">✕</button></div>
   <div class="compare">
    <div class="compareBox"><div class="compareTitle">Previous session</div>${prev?`<div class="prevSet" style="color:var(--dimmer);margin-bottom:6px">${prev.label||''}</div>${prev.sets.map((s,i)=>`<div class="prevSet">S${i+1} · <b>${s.w} × ${s.r}</b>${s.rir!=null?` · ${s.rir} RIR`:''}</div>`).join('')}`:'<div class="prevSet">No history yet.</div>'}</div>
    <div class="compareBox"><div class="compareTitle">Today</div>${cur?.sets?.length?cur.sets.map((s,i)=>`<div class="curSetLine manageLine"><span>S${i+1} · <b>${s.w} × ${s.r}</b> · ${s.rir} RIR ${s.pr?'<span class="prBadge">★ PR</span>':''}</span><span class="setMiniBtns"><button onclick="openSetEditor('active','${id}',${i})">edit</button><button class="del" onclick="if(confirm('Delete this set?')){st.active.exercises['${id}'].sets.splice(${i},1);recalculatePRFlags();save();draft=[];render()}">del</button></span></div>`).join(''):'<div class="curSetLine">Nothing saved yet.</div>'}</div>
@@ -588,12 +605,12 @@ function renderTimer(){
 }
 function makeDraft(ex,cur,prev){
  const seed=cur?.sets?.at(-1)?.w??prev?.sets?.at(-1)?.w??String(ex.load).replace(/[^\d.]/g,'');
- draft=Array.from({length:Math.max(ex.sets,cur?.sets?.length||0)},(_,i)=>{
+ draft=Array.from({length:Math.max(window.__targetSets||ex.sets,cur?.sets?.length||0)},(_,i)=>{
   const saved=cur?.sets?.[i];
   return saved?{...saved}:{w:seed||'',r:'',rir:2,ts:null,actualRest:null,saved:false}
  });
 }
-function openExercise(id){openId=id;draft=[];render()}
+function openExercise(id,targetSets){openId=id;window.__targetSets=targetSets||null;draft=[];render()}
 function closeSheet(e){if(e.target.classList.contains('sheetWrap')){openId=null;draft=[];render()}}
 function setDraft(i,k,v){draft[i][k]=v}
 function setRir(i,v){draft[i].rir=v;render()}
@@ -623,6 +640,7 @@ function plus15(){if(timer.running){timer.end+=15000}else timer.remaining+=15;up
 function skipTimer(){timer.running=false;timer.remaining=0;clearInterval(tick);render()}
 function setMode(m){if(st.active){showToast('Close the live session before changing equipment mode');return}st.mode=m;save();render()}
 function setLen(l){if(st.active){showToast('Close the live session before changing session length');return}st.len=l;save();render()}
+function setTier(t){if(!TIERS[t])return;if(st.active){showToast('Finish or close the live session before changing tier');return}st.tier=t;st.len=(t==='max'||t==='fast')?'full':'core';save();sfx('tap');render()}
 function closeSession(){
  if(!st.active){browseKey=null;ensureActive();sfx('start');showToast(`Session ${st.active.key} started · ${fmtTime(st.active.start)}`);render();return}
  const n=sessionSetCount(st.active),key=st.active.key;
