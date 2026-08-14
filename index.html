@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>FredOS Body V5.3.1 Adaptive Fusion</title>
+<title>FredOS Body V5.4 Adaptive Fusion</title>
 <meta name="theme-color" content="#0E1216"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -203,7 +203,7 @@ body{background:
 
 <script>
 (function(){
-  window.FREDOS_BUILD='5.3.1-5311';
+  window.FREDOS_BUILD='5.4-5401';
   window.__fredosErrors=[];
   function showBootError(msg){
     window.__fredosErrors.push(String(msg));
@@ -227,18 +227,18 @@ body{background:
   <div class="shell">
     <div class="head">
       <div>
-        <div class="eyebrow">FredOS · Body V5.3.1 ADAPTIVE · Fusion</div>
+        <div class="eyebrow">FredOS · Body V5.4 ADAPTIVE · Fusion</div>
         <div class="wordmark">FUSION TRAINING</div>
       </div>
       <div class="live">
-        <div class="time">BUILD 5311</div>
-        <div class="date">V5.3.1 boot diagnostic</div>
+        <div class="time">BUILD 5401</div>
+        <div class="date">V5.4 boot diagnostic</div>
       </div>
     </div>
 
     <div class="cons">
       <div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div>
-      <div class="consTxt">BOOTING V5.3.1 · if this screen remains, read the red startup error below</div>
+      <div class="consTxt">BOOTING V5.4 · if this screen remains, read the red startup error below</div>
     </div>
 
     <div class="tabs">
@@ -303,7 +303,7 @@ body{background:
       <button class="primary">Start session A → next B</button>
 
       <div class="floor">
-        <div class="ft">V5.3.1 BOOT SHELL · BUILD 5311</div>
+        <div class="ft">V5.4 BOOT SHELL · BUILD 5401</div>
         <p>This screen should disappear automatically when FredOS finishes loading. If it remains, the exact JavaScript startup error will appear below.</p>
         <div id="bootError" style="display:none;margin-top:10px;padding:10px;border:1px solid #7a332d;border-left:3px solid #e2664f;border-radius:5px;background:#241313;color:#ffd3cd;font-family:monospace;font-size:11px;line-height:1.5"></div>
       </div>
@@ -567,7 +567,7 @@ function render(){
  const activePct=st.active&&activeTotal?Math.min(100,Math.round(activeSets/activeTotal*100)):0;
  app.innerHTML=`
  <div class="shell">
-  <div class="head"><div><div class="eyebrow">FredOS · Body V5.3.1 ADAPTIVE · Fusion · BUILD 5311</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
+  <div class="head"><div><div class="eyebrow">FredOS · Body V5.4 ADAPTIVE · Fusion · BUILD 5401</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
   <div class="cons"><div class="bars">${[0,1,2,3].map(i=>`<i class="bar ${i<Math.min(recent,4)?'on':''}"></i>`).join('')}</div><div class="consTxt">${st.active?`Lift #${lifts.length+1} · Session ${st.active.key} live · ${activeSets}/${activeTotal} sets · ${activePct}%`:`${lifts.length} completed lift${lifts.length===1?'':'s'} · next up ${queueKey}`}</div><div class="consProgress"><i style="width:${st.active?activePct:Math.min(100,recent*25)}%"></i></div></div>
   <div class="tabs">${[['home','Home'],['now','Next up'],['cardio','Cardio'],['body','Muscle IQ'],['history','History'],['analytics','Trends'],['cycle','Rotation'],['program','Program'],['fusion','Readiness'],['rules','Rules']].map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="goTab('${k}')">${l}</button>`).join('')}</div>
   ${tab==='home'?renderHomeDashboard():tab==='now'?renderNow(sess,key,queueKey):tab==='cardio'?renderCardio():tab==='body'?renderBody(PROGRAM[queueKey]):tab==='history'?renderHistory():tab==='analytics'?renderAnalytics():tab==='cycle'?renderRotation():tab==='program'?renderProgram():tab==='fusion'?renderFusion():renderRules()}
@@ -863,7 +863,7 @@ function renderRules(){return `<div class="body">${RULES.map(([t,b])=>`<div clas
 window.goTab=goTab;window.toggleSound=toggleSound;window.openExerciseEditor=openExerciseEditor;window.saveExerciseEdit=saveExerciseEdit;window.deleteExercise=deleteExercise;window.restoreExercise=restoreExercise;window.resetExercise=resetExercise;window.openSetEditor=openSetEditor;window.saveSetEdit=saveSetEdit;window.deleteSetFromEditor=deleteSetFromEditor;window.browseWorkout=browseWorkout;window.returnToQueue=returnToQueue;window.openHistorySession=openHistorySession;window.saveCardio=saveCardio;window.saveBodyLog=saveBodyLog;window.exportFusion=exportFusion;window.setMode=setMode;window.setLen=setLen;window.openExercise=openExercise;window.closeSheet=closeSheet;window.setDraft=setDraft;window.setRir=setRir;window.clearDraft=clearDraft;window.saveNextSet=saveNextSet;window.setRestPreset=setRestPreset;window.toggleTimer=toggleTimer;window.plus15=plus15;window.skipTimer=skipTimer;window.closeSession=closeSession;window.jump=jump;window.mapMode=mapMode;
 /* V5.3.1: render deferred until adaptive engine is loaded */
 
-window.FREDOS_VERSION="5.3.1 Adaptive · build 5311";
+window.FREDOS_VERSION="5.4 Adaptive · build 5401";
 </script>
 <style>
 /* ==================== V5 ADAPTIVE ENGINE ==================== */
@@ -904,7 +904,7 @@ window.FREDOS_VERSION="5.3.1 Adaptive · build 5311";
 <script>
 /* ==================== FredOS Body V5 — Adaptive Rotation Engine ==================== */
 (function(){
-  const V5_VERSION='5.3.1';
+  const V5_VERSION='5.4';
   const V5_KEY='fredos-v5-engine';
   const oldRenderNow=renderNow, oldRenderSheet=renderSheet, oldRenderBody=renderBody, oldRenderAnalytics=renderAnalytics, oldRenderRotation=renderRotation, oldRenderFusion=renderFusion;
   const V5_TARGETS={
@@ -925,8 +925,11 @@ window.FREDOS_VERSION="5.3.1 Adaptive · build 5311";
   st.v5={...v5Defaults(),...(st.v5||{})};
   function productiveCredit(row){const rir=Number(row?.rir);if(Number.isNaN(rir))return 1;if(rir<=3)return 1;if(rir===4)return .75;if(rir===5)return .5;if(rir===6)return .25;return .1}
   function v5RangeDays(){return 14}
-  function v5PeriodStart(){const now=new Date(),anchor=new Date((st.v5.rotationStart||localDateKey())+'T12:00:00');let dd=Math.floor((now-anchor)/86400000);const k=Math.floor(dd/14);const s=new Date(anchor);s.setDate(anchor.getDate()+k*14);return s}
-  function v5InRotation(ts){const d=new Date(ts),s=v5PeriodStart(),e=new Date(s);e.setDate(e.getDate()+14);return d>=s&&d<e}
+  function v5PeriodStart(){return new Date((st.v5.rotationStart||'2026-08-13')+'T00:00:00')}
+  function v5InRotation(ts){
+    const d=new Date(ts),s=v5PeriodStart(),e=new Date(s);e.setDate(e.getDate()+13);e.setHours(23,59,59,999);
+    return d>=s&&d<=e
+  }
   function v5Sessions(){const a=[...completedSessions()];if(st.active&&sessionSetCount(st.active)>0)a.push(st.active);return a.filter(s=>v5InRotation(s.start||s.end))}
   function v5MuscleBank(){const out={};Object.keys(MUSCLES).forEach(k=>out[k]=0);v5Sessions().forEach(s=>Object.entries(s.exercises||{}).forEach(([id,rec])=>{const map=musclesForId(id);(rec.sets||[]).forEach(row=>{const c=productiveCredit(row);Object.entries(map).forEach(([m,v])=>out[m]=(out[m]||0)+v*c)})}));return out}
   function v5Target(){return V5_TARGETS[st.v5.rotationTarget]||V5_TARGETS.full}
@@ -994,8 +997,8 @@ window.FREDOS_VERSION="5.3.1 Adaptive · build 5311";
     const rec=adaptiveNextMove(),mins=estimatedRemainingMinutes('max'),off=futureOffWindows();
     const restCount=Math.max(0,off-Math.ceil(mins/35));
     return `<div class="body">
-      <div class="homeHero">
-        <div class="homeTop"><div><div class="homeDay">${d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}</div><div class="homeHeadline">${doneMax?'MAX BANKED — RECOVER':work?'WORK DAY':'OFF / TRAINING WINDOW'}</div><div class="homeSub">${doneMax?'You have already banked the Max Growth target for this 14-day rotation. Additional work is optional unless a specific muscle was missed.':rec.summary}</div></div><span class="dayBadge ${doneMax?'earned':work?'work':'off'}">${doneMax?'REST EARNED':work?'WORK':'OFF'}</span></div>
+      <div class="homeHero"><div style="font-family:monospace;font-size:10px;color:#8fb6ff;margin-bottom:9px;letter-spacing:.08em">CURRENT TRAINING BANK · AUG 13–AUG 26 · A ✓ · B ✓ · C NEXT</div>
+        <div class="homeTop"><div><div class="homeDay">${d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}</div><div class="homeHeadline">${doneMax?'MAX BANKED — RECOVER':work?'WORK DAY':'OFF / TRAINING WINDOW'}</div><div class="homeSub">${doneMax?'You have already banked the Max Growth target for this 14-day training bank. Additional work is optional unless a specific muscle was missed.':rec.summary}</div></div><span class="dayBadge ${doneMax?'earned':work?'work':'off'}">${doneMax?'REST EARNED':work?'WORK':'OFF'}</span></div>
         <div class="outcomeProgress">${['stabilize','vbuild','full','max'].map(k=>{const p=v5OutcomePct(k);return `<div class="outcomeLine"><span class="outcomeName">${V5_TARGETS[k].label}</span><span class="outcomeTrack"><i style="width:${Math.min(100,p)}%;background:${outcomeColor(k)}"></i></span><span class="outcomePct">${p}%</span></div>`}).join('')}</div>
         <div class="homeGrid"><div class="homeMetric"><b>${mins}m</b><span>est. work left to MAX</span></div><div class="homeMetric"><b>${restCount}</b><span>potential earned rest windows</span></div><div class="homeMetric"><b>${completedSessions().filter(s=>v5InRotation(s.start)).length}</b><span>rotation workouts</span></div><div class="homeMetric"><b>${v5Grade()}</b><span>${target.label} grade</span></div></div>
       </div>
@@ -1093,6 +1096,34 @@ window.FREDOS_VERSION="5.3.1 Adaptive · build 5311";
 
   migrateAtoAug13();
 
+  function ensureABHistoryV54(){
+    if(st.v5.seededAB5401)return;
+    st.sessions=st.sessions||[];st.cardio=st.cardio||[];
+    const mk=(w,r,rir,ts)=>({w,r,rir,ts,seeded:true});
+    const A={id:'reconciled-a-20260813-v54',key:'A',name:'Upper A',start:'2026-08-13T08:30:00-05:00',end:'2026-08-13T09:20:00-05:00',done:true,actualTrainingDate:'2026-08-13',reconciled:true,exercises:{
+      lateral_raise:{sets:[mk(15,10,null,'2026-08-13T08:34:00-05:00'),mk(15,8,null,'2026-08-13T08:36:00-05:00'),mk(15,10,null,'2026-08-13T08:38:00-05:00'),mk(15,8,null,'2026-08-13T08:40:00-05:00')]},
+      iso_chest_press:{sets:[mk(70,9,0,'2026-08-13T08:43:00-05:00'),mk(60,7,0,'2026-08-13T08:46:00-05:00'),mk(50,7,null,'2026-08-13T08:49:00-05:00')]},
+      wide_lat_pulldown:{sets:[mk(100,12,null,'2026-08-13T08:52:00-05:00'),mk(null,null,null,'2026-08-13T08:54:00-05:00'),mk(null,null,null,'2026-08-13T08:56:00-05:00')]},
+      incline_press:{sets:[mk(170,12,null,'2026-08-13T08:59:00-05:00'),mk(180,6,null,'2026-08-13T09:02:00-05:00'),mk(null,null,null,'2026-08-13T09:05:00-05:00')]},
+      seated_cable_row:{sets:[mk(40,12,null,'2026-08-13T09:08:00-05:00'),mk(45,12,null,'2026-08-13T09:10:00-05:00'),mk(45,10,null,'2026-08-13T09:12:00-05:00')]},
+      rear_delt_fly:{sets:[mk(60,12,null,'2026-08-13T09:14:00-05:00'),mk(60,10,null,'2026-08-13T09:16:00-05:00'),mk(60,9,null,'2026-08-13T09:18:00-05:00')]},
+      ez_curl:{sets:[mk(10,12,null,'2026-08-13T09:18:30-05:00'),mk(15,8,null,'2026-08-13T09:19:00-05:00'),mk(10,8,null,'2026-08-13T09:19:30-05:00')]}
+    }};
+    const B={id:'reconciled-b-20260814-v54',key:'B',name:'Lower B',start:'2026-08-14T08:06:00-05:00',end:'2026-08-14T08:34:28-05:00',durationSec:1708,done:true,actualTrainingDate:'2026-08-14',reconciled:true,exercises:{
+      leg_extension:{sets:[mk(100,10,null,'2026-08-14T08:08:00-05:00'),mk(100,10,null,'2026-08-14T08:10:00-05:00'),mk(100,12,null,'2026-08-14T08:12:00-05:00')]},
+      seated_leg_curl:{sets:[mk(80,12,null,'2026-08-14T08:15:00-05:00'),mk(80,10,null,'2026-08-14T08:18:00-05:00')]},
+      seated_leg_press:{sets:[mk(240,12,null,'2026-08-14T08:21:00-05:00'),mk(160,15,null,'2026-08-14T08:24:00-05:00'),mk(210,15,null,'2026-08-14T08:27:00-05:00')]},
+      standing_calf_raise:{sets:[mk(55,15,null,'2026-08-14T08:30:00-05:00'),mk(55,12,null,'2026-08-14T08:32:00-05:00'),mk(55,15,null,'2026-08-14T08:34:00-05:00')]}
+    }};
+    const hasA=st.sessions.some(s=>s.key==='A'&&localDateKey(new Date(s.start))==='2026-08-13');
+    const hasB=st.sessions.some(s=>s.key==='B'&&localDateKey(new Date(s.start))==='2026-08-14');
+    if(!hasA)st.sessions.push(A);if(!hasB)st.sessions.push(B);
+    if(!st.cardio.some(x=>x.day==='2026-08-13'&&x.type==='Elliptical'&&Number(x.minutes)===20))st.cardio.push({id:'reconciled-cardio-20260813-v54',ts:'2026-08-13T09:35:00-05:00',day:'2026-08-13',type:'Elliptical',minutes:20,seeded:true});
+    st.v5.rotationStart='2026-08-13';st.queueIndex=2;st.v5.seededAB5401=true;save();
+  }
+
+  ensureABHistoryV54();
+
 document.addEventListener('pointerup',function(e){
   const btn=e.target.closest?.('[data-open-ex]');
   if(!btn)return;
@@ -1110,11 +1141,11 @@ document.addEventListener('touchend',function(e){
   openExercise(id,n);
 },{passive:true});
 
-  document.title='FredOS Body V5.3.1 Adaptive';
+  document.title='FredOS Body V5.4 Adaptive';
   window.setRotationTarget=setRotationTarget;window.toggleMixedLegs=toggleMixedLegs;window.setMixTier=setMixTier;window.setV5BodyPeriod=setV5BodyPeriod;window.saveReadiness=saveReadiness;window.toggleAutoRest=toggleAutoRest;window.toggleCountdownBeep=toggleCountdownBeep;window.renderHomeDashboard=renderHomeDashboard;
   window.__FREDOS_BOOT_OK=true;
   render();
-  console.log('FredOS V5.3.1 build 5311 booted successfully');
+  console.log('FredOS V5.4 build 5401 booted successfully');
 })();
 </script>
 
