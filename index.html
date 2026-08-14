@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>FredOS Body V5.3 Adaptive Fusion</title>
+<title>FredOS Body V5.3.1 Adaptive Fusion</title>
 <meta name="theme-color" content="#0E1216"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -201,22 +201,44 @@ body{background:
 </head>
 <body>
 
+<script>
+(function(){
+  window.FREDOS_BUILD='5.3.1-5311';
+  window.__fredosErrors=[];
+  function showBootError(msg){
+    window.__fredosErrors.push(String(msg));
+    var box=document.getElementById('bootError');
+    if(box){
+      box.style.display='block';
+      box.textContent='STARTUP ERROR · '+String(msg);
+    }
+  }
+  window.addEventListener('error',function(e){
+    showBootError((e.message||'JavaScript error')+(e.lineno?' · line '+e.lineno:''));
+  });
+  window.addEventListener('unhandledrejection',function(e){
+    showBootError('Promise · '+(e.reason&&e.reason.message?e.reason.message:String(e.reason)));
+  });
+})();
+</script>
+
+
 <div id="app">
   <div class="shell">
     <div class="head">
       <div>
-        <div class="eyebrow">FredOS · Body V5 · Adaptive</div>
+        <div class="eyebrow">FredOS · Body V5.3.1 ADAPTIVE · Fusion</div>
         <div class="wordmark">FUSION TRAINING</div>
       </div>
       <div class="live">
-        <div class="time">PREVIEW</div>
-        <div class="date">interactive mode loads in a normal browser</div>
+        <div class="time">BUILD 5311</div>
+        <div class="date">V5.3.1 boot diagnostic</div>
       </div>
     </div>
 
     <div class="cons">
       <div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div>
-      <div class="consTxt">No closed session yet · static fallback preview</div>
+      <div class="consTxt">BOOTING V5.3.1 · if this screen remains, read the red startup error below</div>
     </div>
 
     <div class="tabs">
@@ -281,8 +303,9 @@ body{background:
       <button class="primary">Start session A → next B</button>
 
       <div class="floor">
-        <div class="ft">Static fallback loaded</div>
-        <p>If this is what you see, the file viewer is blocking JavaScript. Open the same HTML in Safari/Chrome for the interactive logger, timer, history and analytics.</p>
+        <div class="ft">V5.3.1 BOOT SHELL · BUILD 5311</div>
+        <p>This screen should disappear automatically when FredOS finishes loading. If it remains, the exact JavaScript startup error will appear below.</p>
+        <div id="bootError" style="display:none;margin-top:10px;padding:10px;border:1px solid #7a332d;border-left:3px solid #e2664f;border-radius:5px;background:#241313;color:#ffd3cd;font-family:monospace;font-size:11px;line-height:1.5"></div>
       </div>
     </div>
   </div>
@@ -544,7 +567,7 @@ function render(){
  const activePct=st.active&&activeTotal?Math.min(100,Math.round(activeSets/activeTotal*100)):0;
  app.innerHTML=`
  <div class="shell">
-  <div class="head"><div><div class="eyebrow">FredOS · Body V5.3 ADAPTIVE · Fusion</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
+  <div class="head"><div><div class="eyebrow">FredOS · Body V5.3.1 ADAPTIVE · Fusion · BUILD 5311</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
   <div class="cons"><div class="bars">${[0,1,2,3].map(i=>`<i class="bar ${i<Math.min(recent,4)?'on':''}"></i>`).join('')}</div><div class="consTxt">${st.active?`Lift #${lifts.length+1} · Session ${st.active.key} live · ${activeSets}/${activeTotal} sets · ${activePct}%`:`${lifts.length} completed lift${lifts.length===1?'':'s'} · next up ${queueKey}`}</div><div class="consProgress"><i style="width:${st.active?activePct:Math.min(100,recent*25)}%"></i></div></div>
   <div class="tabs">${[['home','Home'],['now','Next up'],['cardio','Cardio'],['body','Muscle IQ'],['history','History'],['analytics','Trends'],['cycle','Rotation'],['program','Program'],['fusion','Readiness'],['rules','Rules']].map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="goTab('${k}')">${l}</button>`).join('')}</div>
   ${tab==='home'?renderHomeDashboard():tab==='now'?renderNow(sess,key,queueKey):tab==='cardio'?renderCardio():tab==='body'?renderBody(PROGRAM[queueKey]):tab==='history'?renderHistory():tab==='analytics'?renderAnalytics():tab==='cycle'?renderRotation():tab==='program'?renderProgram():tab==='fusion'?renderFusion():renderRules()}
@@ -838,9 +861,9 @@ const RULES=[
 function renderRules(){return `<div class="body">${RULES.map(([t,b])=>`<div class="card rule"><h3>${t}</h3><p>${b}</p></div>`).join('')}</div>`}
 
 window.goTab=goTab;window.toggleSound=toggleSound;window.openExerciseEditor=openExerciseEditor;window.saveExerciseEdit=saveExerciseEdit;window.deleteExercise=deleteExercise;window.restoreExercise=restoreExercise;window.resetExercise=resetExercise;window.openSetEditor=openSetEditor;window.saveSetEdit=saveSetEdit;window.deleteSetFromEditor=deleteSetFromEditor;window.browseWorkout=browseWorkout;window.returnToQueue=returnToQueue;window.openHistorySession=openHistorySession;window.saveCardio=saveCardio;window.saveBodyLog=saveBodyLog;window.exportFusion=exportFusion;window.setMode=setMode;window.setLen=setLen;window.openExercise=openExercise;window.closeSheet=closeSheet;window.setDraft=setDraft;window.setRir=setRir;window.clearDraft=clearDraft;window.saveNextSet=saveNextSet;window.setRestPreset=setRestPreset;window.toggleTimer=toggleTimer;window.plus15=plus15;window.skipTimer=skipTimer;window.closeSession=closeSession;window.jump=jump;window.mapMode=mapMode;
-render();
+/* V5.3.1: render deferred until adaptive engine is loaded */
 
-window.FREDOS_VERSION="5.1 Adaptive";
+window.FREDOS_VERSION="5.3.1 Adaptive · build 5311";
 </script>
 <style>
 /* ==================== V5 ADAPTIVE ENGINE ==================== */
@@ -881,7 +904,7 @@ window.FREDOS_VERSION="5.1 Adaptive";
 <script>
 /* ==================== FredOS Body V5 — Adaptive Rotation Engine ==================== */
 (function(){
-  const V5_VERSION='5.3';
+  const V5_VERSION='5.3.1';
   const V5_KEY='fredos-v5-engine';
   const oldRenderNow=renderNow, oldRenderSheet=renderSheet, oldRenderBody=renderBody, oldRenderAnalytics=renderAnalytics, oldRenderRotation=renderRotation, oldRenderFusion=renderFusion;
   const V5_TARGETS={
@@ -984,7 +1007,7 @@ window.FREDOS_VERSION="5.1 Adaptive";
   }
   function adaptiveNextMove(){
     const remaining=v5Remaining().filter(x=>x.need>.05);
-    const available=remaining.filter(x=>muscleRecovery(x.m).status!=='red');
+    const available=remaining.filter(x=>recoveryRule(x.m).state!=='red');
     if(v5OutcomePct(st.v5.rotationTarget)>=100)return {title:'Recovery day earned',summary:`${v5Target().label} is fully banked.`,reason:'Your selected rotation target is complete. More volume is optional and has diminishing expected return.',moves:['REST','Mobility / walking optional']};
     if(!available.length)return {title:'Rest — needed muscles are recovering',summary:'The muscles that still need volume are not ready yet.',reason:'FredOS is protecting the next productive session rather than forcing volume into a recovery window.',moves:['REST','Recheck next window']};
     const top=available.slice(0,4);
@@ -1087,9 +1110,11 @@ document.addEventListener('touchend',function(e){
   openExercise(id,n);
 },{passive:true});
 
-  document.title='FredOS Body V5.3 Adaptive';
+  document.title='FredOS Body V5.3.1 Adaptive';
   window.setRotationTarget=setRotationTarget;window.toggleMixedLegs=toggleMixedLegs;window.setMixTier=setMixTier;window.setV5BodyPeriod=setV5BodyPeriod;window.saveReadiness=saveReadiness;window.toggleAutoRest=toggleAutoRest;window.toggleCountdownBeep=toggleCountdownBeep;window.renderHomeDashboard=renderHomeDashboard;
+  window.__FREDOS_BOOT_OK=true;
   render();
+  console.log('FredOS V5.3.1 build 5311 booted successfully');
 })();
 </script>
 
