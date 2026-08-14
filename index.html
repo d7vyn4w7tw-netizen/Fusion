@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>FredOS Body V5.4 Adaptive Fusion</title>
+<title>FredOS Body V5.5 Adaptive Fusion</title>
 <meta name="theme-color" content="#0E1216"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -203,7 +203,7 @@ body{background:
 
 <script>
 (function(){
-  window.FREDOS_BUILD='5.4-5401';
+  window.FREDOS_BUILD='5.5-5501';
   window.__fredosErrors=[];
   function showBootError(msg){
     window.__fredosErrors.push(String(msg));
@@ -227,18 +227,18 @@ body{background:
   <div class="shell">
     <div class="head">
       <div>
-        <div class="eyebrow">FredOS · Body V5.4 ADAPTIVE · Fusion</div>
+        <div class="eyebrow">FredOS · Body V5.5 ADAPTIVE · Fusion</div>
         <div class="wordmark">FUSION TRAINING</div>
       </div>
       <div class="live">
-        <div class="time">BUILD 5401</div>
-        <div class="date">V5.4 boot diagnostic</div>
+        <div class="time">BUILD 5501</div>
+        <div class="date">V5.5 boot diagnostic</div>
       </div>
     </div>
 
     <div class="cons">
       <div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div>
-      <div class="consTxt">BOOTING V5.4 · if this screen remains, read the red startup error below</div>
+      <div class="consTxt">BOOTING V5.5 · if this screen remains, read the red startup error below</div>
     </div>
 
     <div class="tabs">
@@ -303,7 +303,7 @@ body{background:
       <button class="primary">Start session A → next B</button>
 
       <div class="floor">
-        <div class="ft">V5.4 BOOT SHELL · BUILD 5401</div>
+        <div class="ft">V5.5 BOOT SHELL · BUILD 5501</div>
         <p>This screen should disappear automatically when FredOS finishes loading. If it remains, the exact JavaScript startup error will appear below.</p>
         <div id="bootError" style="display:none;margin-top:10px;padding:10px;border:1px solid #7a332d;border-left:3px solid #e2664f;border-radius:5px;background:#241313;color:#ffd3cd;font-family:monospace;font-size:11px;line-height:1.5"></div>
       </div>
@@ -567,7 +567,7 @@ function render(){
  const activePct=st.active&&activeTotal?Math.min(100,Math.round(activeSets/activeTotal*100)):0;
  app.innerHTML=`
  <div class="shell">
-  <div class="head"><div><div class="eyebrow">FredOS · Body V5.4 ADAPTIVE · Fusion · BUILD 5401</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
+  <div class="head"><div><div class="eyebrow">FredOS · Body V5.5 ADAPTIVE · Fusion · BUILD 5501</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
   <div class="cons"><div class="bars">${[0,1,2,3].map(i=>`<i class="bar ${i<Math.min(recent,4)?'on':''}"></i>`).join('')}</div><div class="consTxt">${st.active?`Lift #${lifts.length+1} · Session ${st.active.key} live · ${activeSets}/${activeTotal} sets · ${activePct}%`:`${lifts.length} completed lift${lifts.length===1?'':'s'} · next up ${queueKey}`}</div><div class="consProgress"><i style="width:${st.active?activePct:Math.min(100,recent*25)}%"></i></div></div>
   <div class="tabs">${[['home','Home'],['now','Next up'],['cardio','Cardio'],['body','Muscle IQ'],['history','History'],['analytics','Trends'],['cycle','Rotation'],['program','Program'],['fusion','Readiness'],['rules','Rules']].map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="goTab('${k}')">${l}</button>`).join('')}</div>
   ${tab==='home'?renderHomeDashboard():tab==='now'?renderNow(sess,key,queueKey):tab==='cardio'?renderCardio():tab==='body'?renderBody(PROGRAM[queueKey]):tab==='history'?renderHistory():tab==='analytics'?renderAnalytics():tab==='cycle'?renderRotation():tab==='program'?renderProgram():tab==='fusion'?renderFusion():renderRules()}
@@ -638,13 +638,13 @@ function renderSheet(id){
     <div class="setFooter"><span></span><div class="setStamp">${d.ts?`<span>saved ${fmtTime(d.ts)}</span>`:''}${d.actualRest!=null?`<span>actual rest ${secFmt(d.actualRest)}</span>`:''}</div></div>
   </div>`).join('')}
   <div class="setActions"><button class="secondary" onclick="saveNextSet()">Save next completed set</button><button class="small" onclick="clearDraft()">Reset unsaved</button></div>
-  ${renderNextSetCoach(id)}
+  ${window.renderNextSetCoach(id)}
   ${renderTimer()}
   <div class="meta" style="margin-top:12px">Progression uses weight + reps + RIR. Hitting the top of the rep range at 0 RIR will not automatically tell you to add load.</div>
  </div></div>`;
 }
 function renderTimer(){
- const rec=openId?nextSetRecommendation(openId):null,preset=rec?.rest||st.restPreset||120,pct=Math.max(0,Math.min(100,(timer.remaining/preset)*100));
+ const rec=openId?window.nextSetRecommendation(openId):null,preset=rec?.rest||st.restPreset||120,pct=Math.max(0,Math.min(100,(timer.remaining/preset)*100));
  return `<div class="timerBox"><div class="timerHero"><div class="timerRing ${timer.running?'running':''}" id="timerRing" style="--pct:${pct}"><div class="timerRingInner"><div class="timerNum ${timer.running&&timer.remaining<=10?'timerCountdownWarn':''}" id="timerNum">${secFmt(timer.remaining)}</div><div class="timerState" id="timerState">${timer.running?'RESTING':'READY'}</div></div></div><div class="timerSide"><div class="timerLabel">Adaptive rest timer</div><div class="timerSelected">${secFmt(preset)}</div><div class="timerSelectedSub">${rec?'FredOS recommended for your next set':'selected rest target'} · saving a set ${st.v5?.autoRest!==false?'auto-starts':'does not auto-start'} this timer.</div><div class="presets">${[180,150,120,90,75,60].map(s=>`<button class="preset ${preset===s?'on':''}" onclick="setRestPreset(${s})">${secFmt(s)}</button>`).join('')}</div></div></div><div class="timerBtns"><button class="small" onclick="toggleTimer()">${timer.running?'Pause':'Start'}</button><button class="small" onclick="plus15()">+15 sec</button><button class="small" onclick="skipTimer()">Skip</button></div></div>`
 }
 function makeDraft(ex,cur,prev){
@@ -690,7 +690,7 @@ function startTimer(s){
 }
 function updateTimerUI(){
  const e=document.getElementById('timerNum');if(e){e.textContent=secFmt(timer.remaining);e.classList.toggle('timerCountdownWarn',timer.running&&timer.remaining<=10)}
- const ring=document.getElementById('timerRing'),state=document.getElementById('timerState'),preset=openId?recommendedRestSeconds(openId):(st.restPreset||120);
+ const ring=document.getElementById('timerRing'),state=document.getElementById('timerState'),preset=openId?window.recommendedRestSeconds(openId):(st.restPreset||120);
  if(ring)ring.style.setProperty('--pct',Math.max(0,Math.min(100,timer.remaining/preset*100)));if(state)state.textContent=timer.running?(timer.remaining<=10?'GET READY':'RESTING'):'READY'
 }
 function browseWorkout(delta){
@@ -863,7 +863,7 @@ function renderRules(){return `<div class="body">${RULES.map(([t,b])=>`<div clas
 window.goTab=goTab;window.toggleSound=toggleSound;window.openExerciseEditor=openExerciseEditor;window.saveExerciseEdit=saveExerciseEdit;window.deleteExercise=deleteExercise;window.restoreExercise=restoreExercise;window.resetExercise=resetExercise;window.openSetEditor=openSetEditor;window.saveSetEdit=saveSetEdit;window.deleteSetFromEditor=deleteSetFromEditor;window.browseWorkout=browseWorkout;window.returnToQueue=returnToQueue;window.openHistorySession=openHistorySession;window.saveCardio=saveCardio;window.saveBodyLog=saveBodyLog;window.exportFusion=exportFusion;window.setMode=setMode;window.setLen=setLen;window.openExercise=openExercise;window.closeSheet=closeSheet;window.setDraft=setDraft;window.setRir=setRir;window.clearDraft=clearDraft;window.saveNextSet=saveNextSet;window.setRestPreset=setRestPreset;window.toggleTimer=toggleTimer;window.plus15=plus15;window.skipTimer=skipTimer;window.closeSession=closeSession;window.jump=jump;window.mapMode=mapMode;
 /* V5.3.1: render deferred until adaptive engine is loaded */
 
-window.FREDOS_VERSION="5.4 Adaptive · build 5401";
+window.FREDOS_VERSION="5.5 Adaptive · build 5501";
 </script>
 <style>
 /* ==================== V5 ADAPTIVE ENGINE ==================== */
@@ -900,11 +900,12 @@ window.FREDOS_VERSION="5.4 Adaptive · build 5401";
 .settingsInline{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px}.settingToggle{border:1px solid var(--line);background:#11171d;color:var(--dim);border-radius:6px;padding:8px 10px;font-family:monospace;font-size:9px}.settingToggle.on{color:#07121f;background:#8fb6ff;border-color:#8fb6ff;font-weight:800}
 @media(max-width:430px){.outcomeLine{grid-template-columns:76px 1fr 36px}.nextSetDetails{grid-template-columns:1fr 1fr 1fr}}
 
+.bankLocked{opacity:.55!important;cursor:not-allowed!important}.bankLocked:active{transform:none!important}
 </style>
 <script>
 /* ==================== FredOS Body V5 — Adaptive Rotation Engine ==================== */
 (function(){
-  const V5_VERSION='5.4';
+  const V5_VERSION='5.5';
   const V5_KEY='fredos-v5-engine';
   const oldRenderNow=renderNow, oldRenderSheet=renderSheet, oldRenderBody=renderBody, oldRenderAnalytics=renderAnalytics, oldRenderRotation=renderRotation, oldRenderFusion=renderFusion;
   const V5_TARGETS={
@@ -952,6 +953,39 @@ window.FREDOS_VERSION="5.4 Adaptive · build 5401";
   function v5ExerciseContribution(id,sets){const mm=musclesForId(id),arr=[];Object.entries(mm).forEach(([m,v])=>arr.push(`${MUSCLES[m]} ${v===1?'primary':'secondary'} · ${(v*sets).toFixed(1)} credit`));return arr.join(' · ')}
   function appendMixedLegs(html,key){if(!st.v5.mixedLegs||!['A','C'].includes(key))return html;const lk=v5LowerKey(),s=PROGRAM[lk],tier=st.v5.mixTier||'mid';const blocks=s.blocks.map(b=>{const visible=b.pair.filter(p=>{const ex=effectiveEx(p[st.mode]);return ex&&!isDeleted(ex.id)&&includeExercise(b,ex,lk,tier)});if(!visible.length)return '';return `<div class="card"><div class="blockHead"><span class="tag">${lk}-${b.tag}</span><span class="note">Mixed lower add-on · ${TIERS[tier].name}</span></div>${visible.map(p=>{const ex=effectiveEx(p[st.mode]),n=tierSets(ex,b,tier);return renderExerciseRow(ex,b).replace(`${tierSets(ex,b,tierKey())} ×`,`${n} ×`) }).join('')}</div>`}).join('');return html.replace(/(<button class="primary" onclick="closeSession\(\)">)/,blocks+'$1')}
   renderNow=function(sess,key,queueKey){let html=oldRenderNow(sess,key,queueKey);if(key===queueKey){html=html.replace('<div class="body">','<div class="body">'+renderOutcomeSelector()+renderAdaptiveRecommendation()+renderRecoveryStrip());const mixed=`<div class="card"><div class="blockHead"><span class="tag">MIX</span><span class="note">Optional: bank lower-body work on an upper day. This does not erase the normal Gym/Home choice or reorder the base program.</span></div><div class="mixRow"><button class="mixBtn ${st.v5.mixedLegs?'on':''}" onclick="toggleMixedLegs()">${st.v5.mixedLegs?'✓ ':''}Add lower ${v5LowerKey()}</button>${['min','med','mid','max'].map(k=>`<button class="mixBtn ${st.v5.mixTier===k?'on':''}" onclick="setMixTier('${k}')">${TIERS[k].name} · ${TIERS[k].time}</button>`).join('')}</div></div>`;html=html.replace('</div>\n '+renderWorkoutDashboard(sess,key,false,!!st.active,st.active?sessionSetCount(st.active):0,countSets(sess,st.mode,st.len)),`</div>${mixed}\n `+renderWorkoutDashboard(sess,key,false,!!st.active,st.active?sessionSetCount(st.active):0,countSets(sess,st.mode,st.len)));html=appendMixedLegs(html,key)}return html}
+
+  function exerciseBankSets(id){
+    let n=0;
+    v5Sessions().forEach(s=>{n+=(s.exercises?.[id]?.sets||[]).length});
+    return n;
+  }
+  function maxExerciseSets(ex,block){
+    return includeExercise(block,ex,st.active?.key||ORDER[st.qi],'max')?tierSets(ex,block,'max'):0;
+  }
+  function exerciseBankStatus(ex,block){
+    const banked=exerciseBankSets(ex.id),max=maxExerciseSets(ex,block),remaining=Math.max(0,max-banked);
+    let level='NOT BANKED';
+    if(max===0)level='OPTIONAL';
+    else if(banked>=max)level='MAX COMPLETE';
+    else if(banked>0)level='PARTIAL';
+    return {banked,max,remaining,level,locked:max>0&&remaining<=0};
+  }
+  const __oldRenderExerciseRowV55=renderExerciseRow;
+  renderExerciseRow=function(ex,block){
+    const s=exerciseBankStatus(ex,block),cur=currentExercise(ex.id),prev=lastExerciseRecord(ex.id);
+    const requested=tierSets(ex,block,tierKey());
+    const sessionSaved=cur?.sets?.length||0;
+    const allowed=Math.max(0,Math.min(requested, s.remaining + sessionSaved));
+    const target=Math.max(sessionSaved,allowed);
+    const prevTxt=prev?.sets?.map(x=>`${x.w??'—'}×${x.r??'—'}${x.pr?'★':''}`).join(' · ')||'no history';
+    const muscle=primaryMuscle(ex.id);
+    const capText=s.max?`${s.banked}/${s.max} MAX banked · ${s.remaining} left`:'optional';
+    if(s.locked){
+      return `<div class="exManage"><button class="exTap bankLocked" type="button" disabled><div><div class="exName">${ex.name} <span style="color:var(--done)">✓</span></div><div class="exSub"><span class="chip" style="color:var(--done)">MAX COMPLETE</span><span>${capText}</span>${muscle?`<span class="muscleMiniLabel">${muscle}</span>`:''}</div></div><div class="target"><div class="targetMain">0 sets needed</div><span class="pill done">BANKED</span></div></button><button class="exGear" onclick="openExerciseEditor('${ex.id}')" aria-label="Edit ${ex.name}">•••</button></div>`;
+    }
+    return `<div class="exManage"><button class="exTap" type="button" data-open-ex="${ex.id}" data-target-sets="${target}" onclick="window.openExercise('${ex.id}',${target})"><div><div class="exName">${ex.name}</div><div class="exSub"><span style="color:var(--dimmer)">prev</span><span>${prevTxt}</span><span class="chip">${s.level}</span><span class="chip">${capText}</span>${muscle?`<span class="muscleMiniLabel">${muscle}</span>`:''}</div></div><div class="target"><div class="targetMain">${Math.max(0,target-sessionSaved)} set${Math.max(0,target-sessionSaved)===1?'':'s'} available now</div><span class="pill">${s.remaining} to MAX</span></div></button><button class="exGear" onclick="openExerciseEditor('${ex.id}')" aria-label="Edit ${ex.name}">•••</button></div>`;
+  }
+
   function restHistory(id){const rows=[];completedSessions().forEach(s=>{const a=s.exercises?.[id]?.sets||[];a.forEach((x,i)=>{if(i>0&&x.actualRest!=null)rows.push({rest:Number(x.actualRest),reps:Number(x.r),prev:Number(a[i-1]?.r)})})});return rows.slice(-16)}
   function recommendedRest(id){const cls=V5_REST_CLASS[id]||'moderate',base=baseRest[cls],rows=restHistory(id);let rec=base,why=`${cls} movement baseline ${secFmt(base)}.`;if(rows.length>=4){const short=rows.filter(x=>x.rest<base*.8),drop=short.length?short.reduce((n,x)=>n+Math.max(0,(x.prev-x.reps)/Math.max(1,x.prev)),0)/short.length:0;if(drop>.12){rec=Math.min(240,base+30);why+=` Your short-rest sets show ~${Math.round(drop*100)}% rep loss, so FredOS added 30 sec.`}else if(drop<.05&&short.length>=3){rec=Math.max(60,base-15);why+=` Your performance has stayed stable with shorter rests, so FredOS trimmed 15 sec.`}}return {seconds:rec,why,cls}}
   renderSheet=function(id){let html=oldRenderSheet(id),rr=recommendedRest(id);html=html.replace('<div class="compare">',`<div class="restRec"><div class="timerRecommended">Recommended rest after a hard set: <strong>${secFmt(rr.seconds)}</strong></div><div class="restReason">${rr.why}</div><div class="restReason">Muscles: ${v5ExerciseContribution(id,window.__targetSets||exById(id)?.sets||0)}</div></div><div class="compare">`);return html.replace('Live rest timer',`Live rest timer · suggested ${secFmt(rr.seconds)}`)}
@@ -1002,7 +1036,7 @@ window.FREDOS_VERSION="5.4 Adaptive · build 5401";
         <div class="outcomeProgress">${['stabilize','vbuild','full','max'].map(k=>{const p=v5OutcomePct(k);return `<div class="outcomeLine"><span class="outcomeName">${V5_TARGETS[k].label}</span><span class="outcomeTrack"><i style="width:${Math.min(100,p)}%;background:${outcomeColor(k)}"></i></span><span class="outcomePct">${p}%</span></div>`}).join('')}</div>
         <div class="homeGrid"><div class="homeMetric"><b>${mins}m</b><span>est. work left to MAX</span></div><div class="homeMetric"><b>${restCount}</b><span>potential earned rest windows</span></div><div class="homeMetric"><b>${completedSessions().filter(s=>v5InRotation(s.start)).length}</b><span>rotation workouts</span></div><div class="homeMetric"><b>${v5Grade()}</b><span>${target.label} grade</span></div></div>
       </div>
-      <div class="card"><div class="blockHead"><span class="tag">BEST MOVE</span><span class="note">Based on volume bank + local muscle recovery + your fixed work/off calendar.</span></div><div class="adaptCard"><div class="adaptHeadline">${rec.title}</div><div class="adaptBody">${rec.reason}</div><div class="nextMoves">${rec.moves.map(x=>`<span class="nextMove">${x}</span>`).join('')}</div></div></div>
+      <button class="primary" style="margin:0 0 10px" onclick="goTab('now')">Open Next Workout · ${ORDER[st.qi]}</button><div class="card"><div class="blockHead"><span class="tag">BEST MOVE</span><span class="note">Based on volume bank + local muscle recovery + your fixed work/off calendar.</span></div><div class="adaptCard"><div class="adaptHeadline">${rec.title}</div><div class="adaptBody">${rec.reason}</div><div class="nextMoves">${rec.moves.map(x=>`<span class="nextMove">${x}</span>`).join('')}</div></div></div>
       <div class="card"><div class="blockHead"><span class="tag">MAX REMAINING</span><span class="note">${v5OutcomePct('max')}% banked · ${mins} estimated minutes left.</span></div><div class="remainingList" style="padding:0 12px 12px">${rem.length?rem.map(x=>`<span class="remainingChip">${MUSCLES[x.m]} +${x.need.toFixed(1)}</span>`).join(''):'<span class="remainingChip done">All MAX targets banked ✓</span>'}</div></div>
       ${renderRecoveryStrip()}
       <div class="card"><div class="blockHead"><span class="tag">AUTOMATION</span><span class="note">Set timer behavior.</span></div><div class="settingsInline"><button class="settingToggle ${st.v5.autoRest!==false?'on':''}" onclick="toggleAutoRest()">Auto-start recommended rest: ${st.v5.autoRest!==false?'ON':'OFF'}</button><button class="settingToggle ${st.v5.countdownBeep!==false?'on':''}" onclick="toggleCountdownBeep()">10-sec beep: ${st.v5.countdownBeep!==false?'ON':'OFF'}</button></div></div>
@@ -1124,28 +1158,64 @@ window.FREDOS_VERSION="5.4 Adaptive · build 5401";
 
   ensureABHistoryV54();
 
-document.addEventListener('pointerup',function(e){
-  const btn=e.target.closest?.('[data-open-ex]');
-  if(!btn)return;
-  const id=btn.getAttribute('data-open-ex'),n=Number(btn.getAttribute('data-target-sets')||0);
-  window.__lastTapDebug=`tap ${id} @ ${new Date().toLocaleTimeString()}`;
-  openExercise(id,n);
-},{passive:true});
-document.addEventListener('touchend',function(e){
-  const btn=e.target.closest?.('[data-open-ex]');
-  if(!btn)return;
-  // pointer events handle modern Safari; this is a fallback only.
-  if(window.__lastTouchOpen && Date.now()-window.__lastTouchOpen<500)return;
-  window.__lastTouchOpen=Date.now();
-  const id=btn.getAttribute('data-open-ex'),n=Number(btn.getAttribute('data-target-sets')||0);
-  openExercise(id,n);
-},{passive:true});
+  function repairHistoricalAB5501(){
+    if(st.v5.repairedAB5501)return;
+    st.sessions=st.sessions||[];st.cardio=st.cardio||[];
 
-  document.title='FredOS Body V5.4 Adaptive';
-  window.setRotationTarget=setRotationTarget;window.toggleMixedLegs=toggleMixedLegs;window.setMixTier=setMixTier;window.setV5BodyPeriod=setV5BodyPeriod;window.saveReadiness=saveReadiness;window.toggleAutoRest=toggleAutoRest;window.toggleCountdownBeep=toggleCountdownBeep;window.renderHomeDashboard=renderHomeDashboard;
+    // Remove only our prior bad reconciled seed objects. User-entered history is untouched.
+    st.sessions=st.sessions.filter(s=>!['reconciled-a-20260813-v54','reconciled-b-20260814-v54'].includes(s.id));
+
+    const mk=(w,r,rir,ts)=>({w,r,rir,ts,seeded:true});
+    const A={id:'reconciled-a-20260813-v55',key:'A',name:'Upper A',start:'2026-08-13T08:30:00-05:00',end:'2026-08-13T09:20:00-05:00',done:true,reconciled:true,actualTrainingDate:'2026-08-13',exercises:{
+      a1g:{sets:[mk(100,12,null,'2026-08-13T08:32:00-05:00'),mk(null,null,null,'2026-08-13T08:34:00-05:00'),mk(null,null,null,'2026-08-13T08:36:00-05:00'),mk(null,null,null,'2026-08-13T08:38:00-05:00')]},
+      a2g:{sets:[mk(170,12,null,'2026-08-13T08:41:00-05:00'),mk(180,6,null,'2026-08-13T08:44:00-05:00'),mk(null,null,null,'2026-08-13T08:47:00-05:00'),mk(null,null,null,'2026-08-13T08:50:00-05:00')]},
+      a3g:{sets:[mk(15,10,null,'2026-08-13T08:52:00-05:00'),mk(15,8,null,'2026-08-13T08:54:00-05:00'),mk(15,10,null,'2026-08-13T08:56:00-05:00'),mk(15,8,0,'2026-08-13T08:58:00-05:00')]},
+      a4g:{sets:[mk(70,9,0,'2026-08-13T09:00:00-05:00'),mk(60,7,0,'2026-08-13T09:03:00-05:00'),mk(50,7,null,'2026-08-13T09:06:00-05:00')]},
+      a5g:{sets:[mk(40,12,null,'2026-08-13T09:08:00-05:00'),mk(45,12,null,'2026-08-13T09:10:00-05:00'),mk(45,10,null,'2026-08-13T09:12:00-05:00')]},
+      a6g:{sets:[mk(60,12,null,'2026-08-13T09:14:00-05:00'),mk(60,10,null,'2026-08-13T09:16:00-05:00'),mk(60,9,null,'2026-08-13T09:18:00-05:00')]},
+      a7g:{sets:[mk(10,12,null,'2026-08-13T09:18:30-05:00'),mk(15,8,null,'2026-08-13T09:19:00-05:00'),mk(10,8,null,'2026-08-13T09:19:30-05:00')]}
+    }};
+    const B={id:'reconciled-b-20260814-v55',key:'B',name:'Lower B',start:'2026-08-14T08:06:00-05:00',end:'2026-08-14T08:34:28-05:00',durationSec:1708,done:true,reconciled:true,actualTrainingDate:'2026-08-14',exercises:{
+      b1g:{sets:[mk(240,12,null,'2026-08-14T08:08:00-05:00'),mk(160,15,null,'2026-08-14T08:11:00-05:00'),mk(210,15,null,'2026-08-14T08:14:00-05:00')]},
+      b2g:{sets:[mk(80,12,null,'2026-08-14T08:17:00-05:00'),mk(80,10,null,'2026-08-14T08:20:00-05:00')]},
+      b3g:{sets:[mk(100,10,null,'2026-08-14T08:23:00-05:00'),mk(100,10,null,'2026-08-14T08:25:00-05:00'),mk(100,12,null,'2026-08-14T08:27:00-05:00')]},
+      b4g:{sets:[mk(55,15,null,'2026-08-14T08:30:00-05:00'),mk(55,12,null,'2026-08-14T08:32:00-05:00'),mk(55,15,null,'2026-08-14T08:34:00-05:00')]}
+    }};
+    const hasRealA=st.sessions.some(s=>s.id!=='reconciled-a-20260813-v55'&&s.key==='A'&&localDateKey(new Date(s.start))==='2026-08-13');
+    const hasRealB=st.sessions.some(s=>s.id!=='reconciled-b-20260814-v55'&&s.key==='B'&&localDateKey(new Date(s.start))==='2026-08-14');
+    if(!hasRealA&&!st.sessions.some(s=>s.id===A.id))st.sessions.push(A);
+    if(!hasRealB&&!st.sessions.some(s=>s.id===B.id))st.sessions.push(B);
+
+    if(!st.cardio.some(x=>x.day==='2026-08-13'&&x.type==='Elliptical'&&Number(x.minutes)===20)){
+      st.cardio.push({id:'reconciled-cardio-20260813-v55',ts:'2026-08-13T09:35:00-05:00',day:'2026-08-13',type:'Elliptical',minutes:20,seeded:true});
+    }
+    st.v5.rotationStart='2026-08-13';
+    st.qi=2; // C next.
+    st.queueIndex=2;
+    st.v5.repairedAB5501=true;
+    save();
+  }
+
+  repairHistoricalAB5501();
+
+
+
+  document.title='FredOS Body V5.5 Adaptive';
+  window.setRotationTarget=setRotationTarget;window.toggleMixedLegs=toggleMixedLegs;window.setMixTier=setMixTier;window.setV5BodyPeriod=setV5BodyPeriod;window.saveReadiness=saveReadiness;window.toggleAutoRest=toggleAutoRest;window.toggleCountdownBeep=toggleCountdownBeep;window.renderHomeDashboard=renderHomeDashboard;window.renderNextSetCoach=renderNextSetCoach;window.nextSetRecommendation=nextSetRecommendation;window.recommendedRestSeconds=recommendedRestSeconds;
+
+  // V5.5 mobile-safe exercise launcher. One delegated click path only.
+  document.addEventListener('click',function(e){
+    const btn=e.target.closest&&e.target.closest('button[data-open-ex]');
+    if(!btn||btn.disabled)return;
+    e.preventDefault();e.stopPropagation();
+    const id=btn.dataset.openEx,n=Number(btn.dataset.targetSets||0);
+    window.__lastTapDebug=`OPEN ${id} · ${new Date().toLocaleTimeString()}`;
+    window.openExercise(id,n);
+  },true);
+
   window.__FREDOS_BOOT_OK=true;
   render();
-  console.log('FredOS V5.4 build 5401 booted successfully');
+  console.log('FredOS V5.5 build 5501 booted successfully');
 })();
 </script>
 
