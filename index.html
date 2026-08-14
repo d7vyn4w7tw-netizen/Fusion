@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>FredOS Body V5.5 Adaptive Fusion</title>
+<title>FredOS Body V5.6 Adaptive Fusion</title>
 <meta name="theme-color" content="#0E1216"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -200,10 +200,37 @@ body{background:
 </style>
 </head>
 <body>
+<script>
+(function FredOSBuildGuard(){
+  const BUILD='5601', KEY='fredos_last_html_build';
+  try{
+    // Persisted workout data lives in localStorage and is intentionally untouched.
+    const prior=localStorage.getItem(KEY);
+    localStorage.setItem(KEY,BUILD);
+
+    // If an older service worker/cache ever existed, remove only those network caches.
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))).catch(()=>{});
+    }
+    if('caches' in window){
+      caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{});
+    }
+
+    // Installed iOS Home Screen apps can canonicalize away query strings.
+    // On first launch of a new HTML build, reload the canonical path once after
+    // stale network caches are removed. Session guard prevents loops.
+    const guard='fredos_reload_'+BUILD;
+    if(prior!==BUILD && !sessionStorage.getItem(guard)){
+      sessionStorage.setItem(guard,'1');
+      setTimeout(()=>location.replace(location.origin+location.pathname+'?v='+BUILD+'&t='+Date.now()),80);
+    }
+  }catch(e){ console.warn('FredOS build guard',e); }
+})();
+</script>
 
 <script>
 (function(){
-  window.FREDOS_BUILD='5.5-5501';
+  window.FREDOS_BUILD='5.6-5601';
   window.__fredosErrors=[];
   function showBootError(msg){
     window.__fredosErrors.push(String(msg));
@@ -227,18 +254,18 @@ body{background:
   <div class="shell">
     <div class="head">
       <div>
-        <div class="eyebrow">FredOS · Body V5.5 ADAPTIVE · Fusion</div>
+        <div class="eyebrow">FredOS · Body V5.6 ADAPTIVE · Fusion</div>
         <div class="wordmark">FUSION TRAINING</div>
       </div>
       <div class="live">
-        <div class="time">BUILD 5501</div>
-        <div class="date">V5.5 boot diagnostic</div>
+        <div class="time">BUILD 5601</div>
+        <div class="date">V5.6 boot diagnostic</div>
       </div>
     </div>
 
     <div class="cons">
       <div class="bars"><i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i></div>
-      <div class="consTxt">BOOTING V5.5 · if this screen remains, read the red startup error below</div>
+      <div class="consTxt">BOOTING V5.6 · if this screen remains, read the red startup error below</div>
     </div>
 
     <div class="tabs">
@@ -303,7 +330,7 @@ body{background:
       <button class="primary">Start session A → next B</button>
 
       <div class="floor">
-        <div class="ft">V5.5 BOOT SHELL · BUILD 5501</div>
+        <div class="ft">V5.6 BOOT SHELL · BUILD 5601</div>
         <p>This screen should disappear automatically when FredOS finishes loading. If it remains, the exact JavaScript startup error will appear below.</p>
         <div id="bootError" style="display:none;margin-top:10px;padding:10px;border:1px solid #7a332d;border-left:3px solid #e2664f;border-radius:5px;background:#241313;color:#ffd3cd;font-family:monospace;font-size:11px;line-height:1.5"></div>
       </div>
@@ -567,7 +594,7 @@ function render(){
  const activePct=st.active&&activeTotal?Math.min(100,Math.round(activeSets/activeTotal*100)):0;
  app.innerHTML=`
  <div class="shell">
-  <div class="head"><div><div class="eyebrow">FredOS · Body V5.5 ADAPTIVE · Fusion · BUILD 5501</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
+  <div class="head"><div><div class="eyebrow">FredOS · Body V5.6 ADAPTIVE · Fusion · BUILD 5601</div><div class="wordmark">FUSION TRAINING</div></div><div class="live"></div></div>
   <div class="cons"><div class="bars">${[0,1,2,3].map(i=>`<i class="bar ${i<Math.min(recent,4)?'on':''}"></i>`).join('')}</div><div class="consTxt">${st.active?`Lift #${lifts.length+1} · Session ${st.active.key} live · ${activeSets}/${activeTotal} sets · ${activePct}%`:`${lifts.length} completed lift${lifts.length===1?'':'s'} · next up ${queueKey}`}</div><div class="consProgress"><i style="width:${st.active?activePct:Math.min(100,recent*25)}%"></i></div></div>
   <div class="tabs">${[['home','Home'],['now','Next up'],['cardio','Cardio'],['body','Muscle IQ'],['history','History'],['analytics','Trends'],['cycle','Rotation'],['program','Program'],['fusion','Readiness'],['rules','Rules']].map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="goTab('${k}')">${l}</button>`).join('')}</div>
   ${tab==='home'?renderHomeDashboard():tab==='now'?renderNow(sess,key,queueKey):tab==='cardio'?renderCardio():tab==='body'?renderBody(PROGRAM[queueKey]):tab==='history'?renderHistory():tab==='analytics'?renderAnalytics():tab==='cycle'?renderRotation():tab==='program'?renderProgram():tab==='fusion'?renderFusion():renderRules()}
@@ -863,7 +890,7 @@ function renderRules(){return `<div class="body">${RULES.map(([t,b])=>`<div clas
 window.goTab=goTab;window.toggleSound=toggleSound;window.openExerciseEditor=openExerciseEditor;window.saveExerciseEdit=saveExerciseEdit;window.deleteExercise=deleteExercise;window.restoreExercise=restoreExercise;window.resetExercise=resetExercise;window.openSetEditor=openSetEditor;window.saveSetEdit=saveSetEdit;window.deleteSetFromEditor=deleteSetFromEditor;window.browseWorkout=browseWorkout;window.returnToQueue=returnToQueue;window.openHistorySession=openHistorySession;window.saveCardio=saveCardio;window.saveBodyLog=saveBodyLog;window.exportFusion=exportFusion;window.setMode=setMode;window.setLen=setLen;window.openExercise=openExercise;window.closeSheet=closeSheet;window.setDraft=setDraft;window.setRir=setRir;window.clearDraft=clearDraft;window.saveNextSet=saveNextSet;window.setRestPreset=setRestPreset;window.toggleTimer=toggleTimer;window.plus15=plus15;window.skipTimer=skipTimer;window.closeSession=closeSession;window.jump=jump;window.mapMode=mapMode;
 /* V5.3.1: render deferred until adaptive engine is loaded */
 
-window.FREDOS_VERSION="5.5 Adaptive · build 5501";
+window.FREDOS_VERSION="5.6 Adaptive · build 5601";
 </script>
 <style>
 /* ==================== V5 ADAPTIVE ENGINE ==================== */
@@ -905,7 +932,7 @@ window.FREDOS_VERSION="5.5 Adaptive · build 5501";
 <script>
 /* ==================== FredOS Body V5 — Adaptive Rotation Engine ==================== */
 (function(){
-  const V5_VERSION='5.5';
+  const V5_VERSION='5.6';
   const V5_KEY='fredos-v5-engine';
   const oldRenderNow=renderNow, oldRenderSheet=renderSheet, oldRenderBody=renderBody, oldRenderAnalytics=renderAnalytics, oldRenderRotation=renderRotation, oldRenderFusion=renderFusion;
   const V5_TARGETS={
@@ -1039,7 +1066,8 @@ window.FREDOS_VERSION="5.5 Adaptive · build 5501";
       <button class="primary" style="margin:0 0 10px" onclick="goTab('now')">Open Next Workout · ${ORDER[st.qi]}</button><div class="card"><div class="blockHead"><span class="tag">BEST MOVE</span><span class="note">Based on volume bank + local muscle recovery + your fixed work/off calendar.</span></div><div class="adaptCard"><div class="adaptHeadline">${rec.title}</div><div class="adaptBody">${rec.reason}</div><div class="nextMoves">${rec.moves.map(x=>`<span class="nextMove">${x}</span>`).join('')}</div></div></div>
       <div class="card"><div class="blockHead"><span class="tag">MAX REMAINING</span><span class="note">${v5OutcomePct('max')}% banked · ${mins} estimated minutes left.</span></div><div class="remainingList" style="padding:0 12px 12px">${rem.length?rem.map(x=>`<span class="remainingChip">${MUSCLES[x.m]} +${x.need.toFixed(1)}</span>`).join(''):'<span class="remainingChip done">All MAX targets banked ✓</span>'}</div></div>
       ${renderRecoveryStrip()}
-      <div class="card"><div class="blockHead"><span class="tag">AUTOMATION</span><span class="note">Set timer behavior.</span></div><div class="settingsInline"><button class="settingToggle ${st.v5.autoRest!==false?'on':''}" onclick="toggleAutoRest()">Auto-start recommended rest: ${st.v5.autoRest!==false?'ON':'OFF'}</button><button class="settingToggle ${st.v5.countdownBeep!==false?'on':''}" onclick="toggleCountdownBeep()">10-sec beep: ${st.v5.countdownBeep!==false?'ON':'OFF'}</button></div></div>
+      <div class="card"><div class="blockHead"><span class="tag">APP BUILD</span><span class="note">Home Screen and Safari should run the same code.</span></div><div class="settingsInline"><span class="remainingChip done">V5.6 · BUILD 5601</span><button class="settingToggle" onclick="hardRefreshFredOS()">Refresh current build</button></div></div>
+<div class="card"><div class="blockHead"><span class="tag">AUTOMATION</span><span class="note">Set timer behavior.</span></div><div class="settingsInline"><button class="settingToggle ${st.v5.autoRest!==false?'on':''}" onclick="toggleAutoRest()">Auto-start recommended rest: ${st.v5.autoRest!==false?'ON':'OFF'}</button><button class="settingToggle ${st.v5.countdownBeep!==false?'on':''}" onclick="toggleCountdownBeep()">10-sec beep: ${st.v5.countdownBeep!==false?'ON':'OFF'}</button></div></div>
     </div>`;
   }
   function adaptiveNextMove(){
@@ -1092,6 +1120,15 @@ window.FREDOS_VERSION="5.5 Adaptive · build 5501";
     const rec=nextSetRecommendation(id),cur=currentExercise(id),n=(cur?.sets?.length||0)+1;
     return `<div class="nextSetCoach"><div class="nextSetTop"><div><div class="nextSetLabel">Next set recommendation · Set ${n}</div><div class="nextSetLoad">${rec.weight||'—'} lb × ${rec.reps}</div></div><span class="nextSetAction">${rec.action}</span></div><div class="nextSetDetails"><div><b>${secFmt(rec.rest)}</b><span>recommended rest</span></div><div><b>${rec.rir} RIR</b><span>target effort</span></div><div><b>${restClassFor(id)}</b><span>exercise class</span></div></div><div class="nextSetWhy">${rec.why}</div></div>`;
   }
+
+  async function hardRefreshFredOS(){
+    try{
+      if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}
+      if('caches' in window){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}
+    }catch(e){}
+    location.replace(location.origin+location.pathname+'?v=5601&t='+Date.now());
+  }
+
   function toggleAutoRest(){st.v5.autoRest=!(st.v5.autoRest!==false);save();render()}
   function toggleCountdownBeep(){st.v5.countdownBeep=!(st.v5.countdownBeep!==false);save();render()}
 
@@ -1200,8 +1237,8 @@ window.FREDOS_VERSION="5.5 Adaptive · build 5501";
 
 
 
-  document.title='FredOS Body V5.5 Adaptive';
-  window.setRotationTarget=setRotationTarget;window.toggleMixedLegs=toggleMixedLegs;window.setMixTier=setMixTier;window.setV5BodyPeriod=setV5BodyPeriod;window.saveReadiness=saveReadiness;window.toggleAutoRest=toggleAutoRest;window.toggleCountdownBeep=toggleCountdownBeep;window.renderHomeDashboard=renderHomeDashboard;window.renderNextSetCoach=renderNextSetCoach;window.nextSetRecommendation=nextSetRecommendation;window.recommendedRestSeconds=recommendedRestSeconds;
+  document.title='FredOS Body V5.6 Adaptive';
+  window.setRotationTarget=setRotationTarget;window.toggleMixedLegs=toggleMixedLegs;window.setMixTier=setMixTier;window.setV5BodyPeriod=setV5BodyPeriod;window.saveReadiness=saveReadiness;window.toggleAutoRest=toggleAutoRest;window.toggleCountdownBeep=toggleCountdownBeep;window.renderHomeDashboard=renderHomeDashboard;window.renderNextSetCoach=renderNextSetCoach;window.nextSetRecommendation=nextSetRecommendation;window.recommendedRestSeconds=recommendedRestSeconds;window.hardRefreshFredOS=hardRefreshFredOS;
 
   // V5.5 mobile-safe exercise launcher. One delegated click path only.
   document.addEventListener('click',function(e){
@@ -1215,7 +1252,7 @@ window.FREDOS_VERSION="5.5 Adaptive · build 5501";
 
   window.__FREDOS_BOOT_OK=true;
   render();
-  console.log('FredOS V5.5 build 5501 booted successfully');
+  console.log('FredOS V5.6 build 5601 booted successfully');
 })();
 </script>
 
